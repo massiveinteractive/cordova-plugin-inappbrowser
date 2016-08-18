@@ -161,9 +161,19 @@
 
     [self.inAppBrowserViewController showLocationBar:browserOptions.location];
     [self.inAppBrowserViewController showToolBar:browserOptions.toolbar :browserOptions.toolbarposition];
+    [self.inAppBrowserViewController showNavigationBtns:browserOptions.shownavigationbtns]; //PATCH - prev forward buttons
+    [self.inAppBrowserViewController setToolbarFlatColor:browserOptions.toolbarbgcolor]; //PATCH - toolbar flat background colour
+    [self.inAppBrowserViewController setToolbarGradientColor:browserOptions.gradient1 :browserOptions.gradient2 :browserOptions.alphagradient1 :browserOptions.alphagradient2]; //PATCH - set gradient color
+
     if (browserOptions.closebuttoncaption != nil) {
         [self.inAppBrowserViewController setCloseButtonTitle:browserOptions.closebuttoncaption];
     }
+
+    //PATCH set close button color
+    if (browserOptions.closebuttoncolor != nil) {
+        [self.inAppBrowserViewController setCloseButtonColor:browserOptions.closebuttoncolor];
+    }
+
     // Set Presentation Style
     UIModalPresentationStyle presentationStyle = UIModalPresentationFullScreen; // default
     if (browserOptions.presentationstyle != nil) {
@@ -597,7 +607,7 @@
     self.addressLabel.shadowOffset = CGSizeMake(0.0, -1.0);
     self.addressLabel.text = NSLocalizedString(@"Loading...", nil);
     self.addressLabel.textAlignment = NSTextAlignmentLeft;
-    self.addressLabel.textColor = [UIColor colorWithWhite:1.000 alpha:1.000];
+    self.addressLabel.textColor = [UIColor colorWithWhite:1.0f alpha:1.0f];
     self.addressLabel.userInteractionEnabled = NO;
 
     NSString* frontArrowString = NSLocalizedString(@"►", nil); // create arrow from Unicode char
@@ -609,8 +619,6 @@
     self.backButton = [[UIBarButtonItem alloc] initWithTitle:backArrowString style:UIBarButtonItemStylePlain target:self action:@selector(goBack:)];
     self.backButton.enabled = YES;
     self.backButton.imageInsets = UIEdgeInsetsZero;
-
-    [self.toolbar setItems:@[self.closeButton, flexibleSpaceButton, self.backButton, fixedSpaceButton, self.forwardButton]];
 
     self.view.backgroundColor = [UIColor grayColor];
     [self.view addSubview:self.toolbar];
@@ -628,14 +636,30 @@
     // the advantage of using UIBarButtonSystemItemDone is the system will localize it for you automatically
     // but, if you want to set this yourself, knock yourself out (we can't set the title for a system Done button, so we have to create a new one)
     self.closeButton = nil;
-    self.closeButton = [[UIBarButtonItem alloc] initWithTitle:title style:UIBarButtonItemStyleBordered target:self action:@selector(close)];
+    self.closeButton = [[UIBarButtonItem alloc] initWithTitle:title style:UIBarButtonItemStylePlain target:self action:@selector(close)];
     self.closeButton.enabled = YES;
-    self.closeButton.tintColor = [UIColor colorWithRed:60.0 / 255.0 green:136.0 / 255.0 blue:230.0 / 255.0 alpha:1];
+    self.closeButton.tintColor = [UIColor blueColor];
 
     NSMutableArray* items = [self.toolbar.items mutableCopy];
     [items replaceObjectAtIndex:0 withObject:self.closeButton];
     [self.toolbar setItems:items];
 }
+
+//PATCH - TVA Go set close button Colour START
+- (void)setCloseButtonColor:(NSString*)color
+{
+    self.closeButton.tintColor = [UIColor colorWithHexValue:[self convertHexString:color] andAlpha:1.0f];
+}
+
+- (uint)convertHexString:(NSString*)color
+{
+    unsigned result = 0;
+    NSScanner *scanner = [NSScanner scannerWithString:color];
+    [scanner scanHexInt:&result];
+
+    return result;
+}
+//PATCH - TVA Go set close button Colour END
 
 - (void)showLocationBar:(BOOL)show
 {
@@ -687,6 +711,64 @@
         }
     }
 }
+
+//PATCH - Show Prev & Forward Buttons START
+- (void)showNavigationBtns:(BOOL)show
+{
+    if (show) {
+        [self.toolbar setItems:@[self.closeButton, self.flexibleSpaceButton, self.backButton, self.fixedSpaceButton, self.forwardButton]];
+    } else {
+        [self.toolbar setItems:@[self.closeButton]];
+    }
+}
+//PATCH - Show Prev & Forward Buttons END
+
+//PATCH - Flat Color START
+- (void)setToolbarFlatColor:(NSString*)color
+{
+    uint flatColor;
+    
+    if (color == nil)
+        flatColor = 0x000000;
+    else
+        flatColor = [self convertHexString:color];
+    
+    self.navBg = [[UIView alloc]initWithFrame:self.toolbar.frame];
+    self.navBg.backgroundColor = [UIColor colorWithHexValue:flatColor andAlpha:1.0f];
+    [self.toolbar addSubview:self.navBg];
+}
+//PATCH - Flat Color END
+
+//PATCH - Gradient Color START
+- (void)setToolbarGradientColor:(NSString*)color1 : (NSString *) color2 : (NSString *) alpha1 : (NSString *) alpha2
+{
+    //This gradient is intended to be used from left to right (color1 & alpha1 left | color2 & alpha2 right)
+    if (color1 != nil && color2 != nil)
+    {
+        float gradientalpha1 = 1.0f;
+        float gradientalpha2 = 1.0f;
+
+        if (alpha1 == nil || alpha2 == nil) {
+            NSLog(@"One of your alpha values are not set correctly. gradientalpha1 = %@, gradientalpha2 = %@", alpha1, alpha2);
+        } else {
+            gradientalpha1 = [alpha1 floatValue];
+            gradientalpha2 = [alpha2 floatValue];
+        }
+
+        // Setup gradient layer
+        CAGradientLayer *gradient = [CAGradientLayer layer];
+        gradient.frame = self.navBg.bounds;
+        gradient.colors = [NSArray arrayWithObjects:(id)[[UIColor colorWithHexValue:[self convertHexString:color1] andAlpha:gradientalpha1] CGColor], (id)[[UIColor colorWithHexValue:[self convertHexString:color2] andAlpha:gradientalpha2] CGColor], nil];
+        gradient.startPoint = CGPointMake(0, 1);
+        gradient.endPoint = CGPointMake(1, 1);
+        [self.navBg.layer insertSublayer:gradient atIndex:0];
+    }
+    else {
+        NSLog(@"One of your gradient values are not set correctly. gradient1 = %@, gradient2 = %@", color1, color2);
+        return;
+    }
+}
+//PATCH - Gradient Color END
 
 - (void)showToolBar:(BOOL)show : (NSString *) toolbarPosition
 {
@@ -756,7 +838,7 @@
 
 - (void)viewDidUnload
 {
-    [self.webView loadHTMLString:nil baseURL:nil];
+    [self.webView loadHTMLString:@"" baseURL:nil];
     [CDVUserAgentUtil releaseLock:&_userAgentLockToken];
     [super viewDidUnload];
 }
@@ -963,6 +1045,9 @@
         self.suppressesincrementalrendering = NO;
         self.hidden = NO;
         self.disallowoverscroll = NO;
+
+        //PATCH new browser options
+        self.shownavigationbtns = YES;
     }
 
     return self;
@@ -1052,7 +1137,11 @@
     return YES;
 }
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED < 90000
 - (NSUInteger)supportedInterfaceOrientations
+#else
+- (UIInterfaceOrientationMask)supportedInterfaceOrientations
+#endif
 {
     if ((self.orientationDelegate != nil) && [self.orientationDelegate respondsToSelector:@selector(supportedInterfaceOrientations)]) {
         return [self.orientationDelegate supportedInterfaceOrientations];
@@ -1070,6 +1159,12 @@
     return YES;
 }
 
-
 @end
 
+@implementation UIColor(HexString)
+
++ (UIColor *)colorWithHexValue:(uint)hexValue andAlpha:(float)alpha {
+    return [UIColor colorWithRed:((float)((hexValue & 0xFF0000) >> 16))/255.0 green:((float)((hexValue & 0xFF00) >> 8))/255.0 blue:((float)(hexValue & 0xFF))/255.0 alpha:alpha];
+}
+
+@end
