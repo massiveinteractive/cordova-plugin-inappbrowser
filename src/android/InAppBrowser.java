@@ -359,10 +359,12 @@ public class InAppBrowser extends CordovaPlugin {
             StringTokenizer headers = new StringTokenizer(headerString, ",");
             StringTokenizer option;
             while(headers.hasMoreElements()) {
-                option = new StringTokenizer(headers.nextToken(), "=");
-                if (option.hasMoreElements()) {
-                    String key = option.nextToken();
-                    String value = option.nextToken();
+                String pair = headers.nextToken();
+                int index = pair.indexOf("=");
+                if (index > -1 && index < pair.length() - 1)
+                {
+                    String key = pair.substring(0, index);
+                    String value = pair.substring(index+1, pair.length());
                     map.put(key, value);
                 }
             }
