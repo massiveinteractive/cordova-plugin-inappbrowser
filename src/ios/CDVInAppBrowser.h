@@ -82,19 +82,19 @@
 
 @interface CDVInAppBrowserViewController : UIViewController <UIWebViewDelegate, CDVScreenOrientationDelegate>{
 @private
-    NSString* _userAgent;
-    NSString* _prevUserAgent;
-    NSInteger _userAgentLockToken;
-    CDVInAppBrowserOptions *_browserOptions;
-    
-    UIView *statusBar;
-    CAGradientLayer *gradientStatus;
-    CAGradientLayer *gradientToolbar;
-    
+	NSString* _userAgent;
+	NSString* _prevUserAgent;
+	NSInteger _userAgentLockToken;
+	CDVInAppBrowserOptions *_browserOptions;
+	
+	UIView *statusBar;
+	CAGradientLayer *gradientStatus;
+	CAGradientLayer *gradientToolbar;
+	
 #ifdef __CORDOVA_4_0_0
-    CDVUIWebViewDelegate* _webViewDelegate;
+	CDVUIWebViewDelegate* _webViewDelegate;
 #else
-    CDVWebViewDelegate* _webViewDelegate;
+	CDVWebViewDelegate* _webViewDelegate;
 #endif
 }
 
