@@ -131,16 +131,7 @@
         <header-file src="src/ios/CDVInAppBrowser.h" />
 	    <source-file src="src/ios/CDVInAppBrowser.m" />
         
-        
-        <header-file src="src/ios/dependencies/WVJSBridge/WebViewJavascriptBridge_JS.h" />
-        <source-file src="src/ios/dependencies/WVJSBridge/WebViewJavascriptBridge_JS.m" />
-        
-        <header-file src="src/ios/dependencies/WVJSBridge/WebViewJavascriptBridge.h" />
-        <source-file src="src/ios/dependencies/WVJSBridge/WebViewJavascriptBridge.m" />
-        
-        <header-file src="src/ios/dependencies/WVJSBridge/WebViewJavascriptBridgeBase.h" />
-        <source-file src="src/ios/dependencies/WVJSBridge/WebViewJavascriptBridgeBase.m" />
-	    <framework src="CoreGraphics.framework" />
+        <framework src="CoreGraphics.framework" />
     </platform>
 
     <!-- wp7 -->

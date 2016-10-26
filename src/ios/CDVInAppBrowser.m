@@ -17,8 +17,6 @@
  under the License.
  */
 
-#import "WebViewJavascriptBridge.h"
-
 #import "CDVInAppBrowser.h"
 #import <Cordova/CDVPluginResult.h>
 #import <Cordova/CDVUserAgentUtil.h>
@@ -40,7 +38,6 @@
     NSInteger _previousStatusBarStyle;
     NSString* receivedHeaderToken;
 }
-@property BridgeDelegate *bridgeDelegate;
 @end
 
 @implementation CDVInAppBrowser
@@ -49,7 +46,6 @@
 {
     _previousStatusBarStyle = -1;
     _callbackIdPattern = nil;
-    self.bridgeDelegate = [BridgeDelegate new];
 }
 
 - (id)settingForKey:(NSString*)key
@@ -87,20 +83,10 @@
 {
     CDVPluginResult* pluginResult;
     
-    [WebViewJavascriptBridge enableLogging];
-    self.bridge = [WebViewJavascriptBridge bridgeForWebView:(UIWebView*)self.webView];
-    
-    [self.bridge setWebViewDelegate:self.bridgeDelegate];
-    
-    [self.bridge registerHandler:@"ObjC Echo" handler:^(id data, WVJBResponseCallback responseCallback) {
-        NSLog(@"ObjC Echo called with: %@", data);
-        responseCallback(data);
-    }];
-    
-    
     NSString* url = [command argumentAtIndex:0];
     NSString* target = [command argumentAtIndex:1 withDefault:kInAppBrowserTargetSelf];
-    NSString* options = [command argumentAtIndex:2 withDefault:@"" andClass:[NSString class]];
+    //	NSString* options = [command argumentAtIndex:2 withDefault:@"" andClass:[NSString class]];
+    NSString *options = @"toolbarposition=top,closebuttoncaption=Close,disallowoverscroll=no,shownavigationbtns=no,closebuttoncolor=0xFFFFFF,gradient1=0xFF0000,gradient2=0xFF0000,alphagradient1=1.0,alphagradient2=1.0,toolbarbgcolor=0x0xFF0000";
     
     NSString *defaultTokenString = [command argumentAtIndex:3 withDefault:kDefaultToken];
     receivedHeaderToken = [[NSString alloc]initWithString:defaultTokenString];
@@ -165,7 +151,6 @@
     
     if (self.inAppBrowserViewController == nil)
     {
-        
         NSString* userAgent = [CDVUserAgentUtil originalUserAgent];
         NSString* overrideUserAgent = [self settingForKey:@"OverrideUserAgent"];
         NSString* appendUserAgent = [self settingForKey:@"AppendUserAgent"];
@@ -188,7 +173,6 @@
             self.inAppBrowserViewController.orientationDelegate = (UIViewController <CDVScreenOrientationDelegate>*)self.viewController;
         }
     }
-    
     
     [self.inAppBrowserViewController showLocationBar:browserOptions.location];
     [self.inAppBrowserViewController showToolBar:browserOptions.toolbar :browserOptions.toolbarposition];
@@ -544,7 +528,7 @@
 
 @implementation CDVInAppBrowserViewController
 
-@synthesize currentURL,tokenString,jsBridgeDelegate;
+@synthesize currentURL,tokenString;
 
 - (id)initWithUserAgent:(NSString*)userAgent prevUserAgent:(NSString*)prevUserAgent browserOptions: (CDVInAppBrowserOptions*) browserOptions
 {
@@ -921,9 +905,6 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    self.jsBridgeDelegate = [BridgeDelegate new];
-    self.bridge = [WebViewJavascriptBridge bridgeForWebView:self.webView];
-    [self.bridge setWebViewDelegate:self.jsBridgeDelegate];
     
     statusBar = [[[UIApplication sharedApplication] valueForKey:@"statusBarWindow"] valueForKey:@"statusBar"];
     gradientStatus = [CAGradientLayer layer];
@@ -944,12 +925,6 @@
     [super viewDidAppear:animated];
     
     gradientStatus.hidden = NO;
-    [self.bridge registerHandler:@"ObjC Echo" handler:^(id data, WVJBResponseCallback responseCallback)
-     {
-         NSLog(@"ObjC Echo called with: %@", data);
-         responseCallback(data);
-     }];
-    
 }
 
 - (void)viewDidDisappear:(BOOL)animated
@@ -1043,6 +1018,7 @@
             NSMutableURLRequest *mutable_request= [request mutableCopy];
             [mutable_request addValue:[valueString copy] forHTTPHeaderField:keyString];
             request = [mutable_request copy];
+            NSLog(@"headers: %@",[request allHTTPHeaderFields]);
         }
     }
     
@@ -1329,18 +1305,6 @@
 + (UIColor *)colorWithHexValue:(uint)hexValue andAlpha:(float)alpha 
 {
     return [UIColor colorWithRed:((float)((hexValue & 0xFF0000) >> 16))/255.0 green:((float)((hexValue & 0xFF00) >> 8))/255.0 blue:((float)(hexValue & 0xFF))/255.0 alpha:alpha];
-}
-
-@end
-
-@implementation BridgeDelegate
-
-- (void)webViewDidStartLoad:(UIWebView *)webView {
-    NSLog(@"webViewDidStartLoad");
-}
-
-- (void)webViewDidFinishLoad:(UIWebView *)webView {
-    NSLog(@"webViewDidFinishLoad");
 }
 
 @end

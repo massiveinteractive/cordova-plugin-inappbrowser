@@ -20,7 +20,6 @@
 #import <Cordova/CDVPlugin.h>
 #import <Cordova/CDVInvokedUrlCommand.h>
 #import <Cordova/CDVScreenOrientationDelegate.h>
-//#import "BridgeDelegate.h"
 #define kDefaultToken @"NoHeaderToken"
 
 #ifdef __CORDOVA_4_0_0
@@ -37,17 +36,11 @@
 @property (nonatomic, retain) CDVInAppBrowserViewController* inAppBrowserViewController;
 @property (nonatomic, copy) NSString* callbackId;
 @property (nonatomic, copy) NSRegularExpression *callbackIdPattern;
-@property (nonatomic,strong) WebViewJavascriptBridge* bridge;
 
 - (void)open:(CDVInvokedUrlCommand*)command;
 - (void)close:(CDVInvokedUrlCommand*)command;
 - (void)injectScriptCode:(CDVInvokedUrlCommand*)command;
 - (void)show:(CDVInvokedUrlCommand*)command;
-
-@end
-
-
-@interface BridgeDelegate : NSObject<UIWebViewDelegate>
 
 @end
 
@@ -98,8 +91,6 @@
     CAGradientLayer *gradientStatus;
     CAGradientLayer *gradientToolbar;
     
-    BridgeDelegate *jsBridgeDelegate;
-    
 #ifdef __CORDOVA_4_0_0
     CDVUIWebViewDelegate* _webViewDelegate;
 #else
@@ -122,9 +113,6 @@
 @property (nonatomic, weak) CDVInAppBrowser* navigationDelegate;
 @property (nonatomic) NSURL* currentURL;
 @property (nonatomic, strong) NSString *tokenString;
-@property WebViewJavascriptBridge* bridge;
-@property BridgeDelegate *jsBridgeDelegate;
-
 - (void)close;
 - (void)navigateTo:(NSURL*)url;
 - (void)showLocationBar:(BOOL)show;
@@ -150,4 +138,3 @@
 + (UIColor *)colorWithHexValue:(uint)hexValue andAlpha:(float)alpha;
 
 @end
-
