@@ -1195,7 +1195,19 @@
 + (CDVInAppBrowserOptions*)parseOptions:(NSString*)options
 {
 	CDVInAppBrowserOptions* obj = [[CDVInAppBrowserOptions alloc] init];
+	NSNumberFormatter* numberFormatter = [[NSNumberFormatter alloc] init];
 	
+	//Set the Default value of the objects
+	[obj setValue:@"top" forKey:@"toolbarposition"];
+	[obj setValue:@"Close" forKey:@"closebuttoncaption"];
+	[obj setValue:[NSNumber numberWithBool:NO] forKey:@"disallowoverscroll"];
+	[obj setValue:[NSNumber numberWithBool:NO] forKey:@"shownavigationbtns"];
+	[obj setValue:[numberFormatter numberFromString:@"0xFFFFFF"] forKey:@"closebuttoncolor"];
+	[obj setValue:[numberFormatter numberFromString:@"0xFF0000"] forKey:@"gradient1"];
+	[obj setValue:[numberFormatter numberFromString:@"0xFF0000"] forKey:@"gradient2"];
+	[obj setValue:[numberFormatter numberFromString:@"0xFF0000"] forKey:@"toolbarbgcolor"];
+	[obj setValue:[numberFormatter numberFromString:@"1.0"] forKey:@"alphagradient1"];
+	[obj setValue:[numberFormatter numberFromString:@"1.0"] forKey:@"alphagradient2"];
 	// NOTE: this parsing does not handle quotes within values
 	NSArray* pairs = [options componentsSeparatedByString:@","];
 	
@@ -1209,7 +1221,6 @@
 			NSString* value_lc = [value lowercaseString];
 			
 			BOOL isBoolean = [value_lc isEqualToString:@"yes"] || [value_lc isEqualToString:@"no"];
-			NSNumberFormatter* numberFormatter = [[NSNumberFormatter alloc] init];
 			[numberFormatter setAllowsFloats:YES];
 			BOOL isNumber = [numberFormatter numberFromString:value_lc] != nil;
 			
