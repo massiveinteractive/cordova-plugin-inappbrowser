@@ -20,12 +20,20 @@
 #import <Cordova/CDVPlugin.h>
 #import <Cordova/CDVInvokedUrlCommand.h>
 #import <Cordova/CDVScreenOrientationDelegate.h>
+#import "WebViewJavascriptBridge.h"
+
+#define kDefaultToken @"NoHeaderToken"
 
 #ifdef __CORDOVA_4_0_0
 #import <Cordova/CDVUIWebViewDelegate.h>
 #else
 #import <Cordova/CDVWebViewDelegate.h>
 #endif
+
+@interface BridgeDelegate : NSObject<UIWebViewDelegate>
+//@property WebViewJavascriptBridge* inappBridge;
+
+@end
 
 @class CDVInAppBrowserViewController;
 
@@ -40,8 +48,10 @@
 - (void)close:(CDVInvokedUrlCommand*)command;
 - (void)injectScriptCode:(CDVInvokedUrlCommand*)command;
 - (void)show:(CDVInvokedUrlCommand*)command;
+-(void)testcall:(CDVInvokedUrlCommand*)command;
 
 @end
+
 
 @interface CDVInAppBrowserOptions : NSObject {}
 
@@ -81,19 +91,19 @@
 
 @interface CDVInAppBrowserViewController : UIViewController <UIWebViewDelegate, CDVScreenOrientationDelegate>{
 @private
-    NSString* _userAgent;
-    NSString* _prevUserAgent;
-    NSInteger _userAgentLockToken;
-    CDVInAppBrowserOptions *_browserOptions;
-    
-    UIView *statusBar;
-    CAGradientLayer *gradientStatus;
-    CAGradientLayer *gradientToolbar;
-    
+	NSString* _userAgent;
+	NSString* _prevUserAgent;
+	NSInteger _userAgentLockToken;
+	CDVInAppBrowserOptions *_browserOptions;
+	
+	UIView *statusBar;
+	CAGradientLayer *gradientStatus;
+	CAGradientLayer *gradientToolbar;
+	
 #ifdef __CORDOVA_4_0_0
-    CDVUIWebViewDelegate* _webViewDelegate;
+	CDVUIWebViewDelegate* _webViewDelegate;
 #else
-    CDVWebViewDelegate* _webViewDelegate;
+	CDVWebViewDelegate* _webViewDelegate;
 #endif
 }
 
@@ -111,6 +121,11 @@
 @property (nonatomic, weak) id <CDVScreenOrientationDelegate> orientationDelegate;
 @property (nonatomic, weak) CDVInAppBrowser* navigationDelegate;
 @property (nonatomic) NSURL* currentURL;
+@property (nonatomic, strong) NSString *tokenString;
+@property (nonatomic,strong) BridgeDelegate *bridgeDelegate;
+@property WebViewJavascriptBridge* vcBridge;
+
+-(void)testcallback;
 
 - (void)close;
 - (void)navigateTo:(NSURL*)url;
@@ -121,7 +136,6 @@
 - (void)setCloseButtonTitle:(NSString*)title;
 - (void)setToolbarFlatColor:(NSString*)color;
 - (void)setToolbarGradientColor:(NSString*)color1 : (NSString *) color2 : (NSString *) alpha1 : (NSString *) alpha2; //PATCH - setting gradient
-
 - (id)initWithUserAgent:(NSString*)userAgent prevUserAgent:(NSString*)prevUserAgent browserOptions: (CDVInAppBrowserOptions*) browserOptions;
 
 @end
