@@ -36,6 +36,7 @@
 
 @interface CDVInAppBrowser () {
 	NSInteger _previousStatusBarStyle;
+	NSString* receivedHeaderToken;
 }
 @end
 
@@ -85,7 +86,8 @@
 	NSString* url = [command argumentAtIndex:0];
 	NSString* target = [command argumentAtIndex:1 withDefault:kInAppBrowserTargetSelf];
 	NSString* options = [command argumentAtIndex:2 withDefault:@"" andClass:[NSString class]];
-	
+	NSString *defaultTokenString = [command argumentAtIndex:3 withDefault:kDefaultToken];
+	receivedHeaderToken = [[NSString alloc]initWithString:defaultTokenString];
 	self.callbackId = command.callbackId;
 	
 	if (url != nil) 
@@ -230,7 +232,8 @@
 		self.inAppBrowserViewController.webView.keyboardDisplayRequiresUserAction = browserOptions.keyboarddisplayrequiresuseraction;
 		self.inAppBrowserViewController.webView.suppressesIncrementalRendering = browserOptions.suppressesincrementalrendering;
 	}
-	
+
+	[self.inAppBrowserViewController setTokenString:receivedHeaderToken];
 	[self.inAppBrowserViewController navigateTo:url];
 	if (!browserOptions.hidden) 
 		[self show:nil];
@@ -523,7 +526,7 @@
 
 @implementation CDVInAppBrowserViewController
 
-@synthesize currentURL;
+@synthesize currentURL,tokenString;
 
 - (id)initWithUserAgent:(NSString*)userAgent prevUserAgent:(NSString*)prevUserAgent browserOptions: (CDVInAppBrowserOptions*) browserOptions
 {
@@ -975,12 +978,52 @@
 - (void)navigateTo:(NSURL*)url
 {
 	NSURLRequest* request = [NSURLRequest requestWithURL:url];
-	
-	if (_userAgentLockToken != 0) 
+	NSString *defaultString = kDefaultToken;
+	if (![self.tokenString isEqualToString:defaultString])
+	{
+		NSArray *array  = [self.tokenString componentsSeparatedByString:@"="];
+		NSMutableString *keyString = [[NSMutableString alloc]init];
+		NSMutableString *valueString = [[NSMutableString alloc]init];
+		if (array.count>2)
+		{
+			[keyString setString:[array objectAtIndex:0]];
+			for (int i = 1; i<array.count; i++)
+			{
+				if (i != array.count - 1)
+				{
+					NSString *stringToRet = [[array objectAtIndex:i] stringByAppendingString:@"="];
+					[valueString appendString:stringToRet];
+				}
+				else
+				{
+					[valueString appendString:[array objectAtIndex:i]];
+				}
+			}
+		}
+		else if (array.count==2)
+		{
+			[keyString setString:[array objectAtIndex:0]];
+			[valueString setString:array.lastObject];
+		}
+		
+		if (array.count<2)
+		{
+			//Don't do anything, no token was passed for the link
+			//Or PAss on a message as error
+		}
+		else
+		{
+			NSMutableURLRequest *mutable_request= [request mutableCopy];
+			[mutable_request addValue:[valueString copy] forHTTPHeaderField:keyString];
+			request = [mutable_request copy];
+			NSLog(@"headers: %@",[request allHTTPHeaderFields]);
+		}
+	}
+	if (_userAgentLockToken != 0)
 	{
 		[self.webView loadRequest:request];
-	} 
-	else 
+	}
+	else
 	{
 		__weak CDVInAppBrowserViewController* weakSelf = self;
 		[CDVUserAgentUtil acquireLock:^(NSInteger lockToken) {
@@ -1149,6 +1192,20 @@
 + (CDVInAppBrowserOptions*)parseOptions:(NSString*)options
 {
 	CDVInAppBrowserOptions* obj = [[CDVInAppBrowserOptions alloc] init];
+	NSNumberFormatter* numberFormatter = [[NSNumberFormatter alloc] init];
+	[numberFormatter setAllowsFloats:YES];
+
+	//Set the Default value of the objects
+	[obj setValue:@"top" forKey:@"toolbarposition"];
+	[obj setValue:@"Close" forKey:@"closebuttoncaption"];
+	[obj setValue:[NSNumber numberWithBool:NO] forKey:@"disallowoverscroll"];
+	[obj setValue:[NSNumber numberWithBool:NO] forKey:@"shownavigationbtns"];
+	[obj setValue:[numberFormatter numberFromString:@"0xFFFFFF"] forKey:@"closebuttoncolor"];
+	[obj setValue:[numberFormatter numberFromString:@"0xFF0000"] forKey:@"gradient1"];
+	[obj setValue:[numberFormatter numberFromString:@"0xFF0000"] forKey:@"gradient2"];
+	[obj setValue:[numberFormatter numberFromString:@"0xFF0000"] forKey:@"toolbarbgcolor"];
+	[obj setValue:[numberFormatter numberFromString:@"1.0"] forKey:@"alphagradient1"];
+	[obj setValue:[numberFormatter numberFromString:@"1.0"] forKey:@"alphagradient2"];
 	
 	// NOTE: this parsing does not handle quotes within values
 	NSArray* pairs = [options componentsSeparatedByString:@","];
@@ -1163,8 +1220,6 @@
 			NSString* value_lc = [value lowercaseString];
 			
 			BOOL isBoolean = [value_lc isEqualToString:@"yes"] || [value_lc isEqualToString:@"no"];
-			NSNumberFormatter* numberFormatter = [[NSNumberFormatter alloc] init];
-			[numberFormatter setAllowsFloats:YES];
 			BOOL isNumber = [numberFormatter numberFromString:value_lc] != nil;
 			
 			// set the property according to the key name
