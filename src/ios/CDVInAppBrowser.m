@@ -1254,8 +1254,6 @@
 			NSString* value_lc = [value lowercaseString];
 			
 			BOOL isBoolean = [value_lc isEqualToString:@"yes"] || [value_lc isEqualToString:@"no"];
-			NSNumberFormatter* numberFormatter = [[NSNumberFormatter alloc] init];
-			[numberFormatter setAllowsFloats:YES];
 			BOOL isNumber = [numberFormatter numberFromString:value_lc] != nil;
 			
 			// set the property according to the key name
