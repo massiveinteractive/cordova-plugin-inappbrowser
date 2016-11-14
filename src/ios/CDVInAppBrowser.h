@@ -20,6 +20,7 @@
 #import <Cordova/CDVPlugin.h>
 #import <Cordova/CDVInvokedUrlCommand.h>
 #import <Cordova/CDVScreenOrientationDelegate.h>
+#define kDefaultToken @"NoHeaderToken"
 
 #ifdef __CORDOVA_4_0_0
 #import <Cordova/CDVUIWebViewDelegate.h>
@@ -81,19 +82,19 @@
 
 @interface CDVInAppBrowserViewController : UIViewController <UIWebViewDelegate, CDVScreenOrientationDelegate>{
 @private
-    NSString* _userAgent;
-    NSString* _prevUserAgent;
-    NSInteger _userAgentLockToken;
-    CDVInAppBrowserOptions *_browserOptions;
-    
-    UIView *statusBar;
-    CAGradientLayer *gradientStatus;
-    CAGradientLayer *gradientToolbar;
-    
+	NSString* _userAgent;
+	NSString* _prevUserAgent;
+	NSInteger _userAgentLockToken;
+	CDVInAppBrowserOptions *_browserOptions;
+	
+	UIView *statusBar;
+	CAGradientLayer *gradientStatus;
+	CAGradientLayer *gradientToolbar;
+	
 #ifdef __CORDOVA_4_0_0
-    CDVUIWebViewDelegate* _webViewDelegate;
+	CDVUIWebViewDelegate* _webViewDelegate;
 #else
-    CDVWebViewDelegate* _webViewDelegate;
+	CDVWebViewDelegate* _webViewDelegate;
 #endif
 }
 
@@ -111,7 +112,7 @@
 @property (nonatomic, weak) id <CDVScreenOrientationDelegate> orientationDelegate;
 @property (nonatomic, weak) CDVInAppBrowser* navigationDelegate;
 @property (nonatomic) NSURL* currentURL;
-
+@property (nonatomic, strong) NSString *tokenString;
 - (void)close;
 - (void)navigateTo:(NSURL*)url;
 - (void)showLocationBar:(BOOL)show;
