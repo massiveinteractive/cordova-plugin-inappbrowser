@@ -88,15 +88,8 @@
 {
 	CDVPluginResult* pluginResult;
 	
-//	self.bridgeDelegate.inappBridge =[WebViewJavascriptBridge bridgeForWebView:(UIWebView*)self.webView];
-//	
-//	[self.bridgeDelegate.inappBridge setWebViewDelegate:self.bridgeDelegate];
-//	
-//	[self.bridgeDelegate.inappBridge registerHandler:@"testJavascriptHandler" handler:^(id data, WVJBResponseCallback responseCallback)
-//	 {
-//		 NSLog(@"ObjC Echo called with: %@", data);
-//		 responseCallback(data);
-//	 }];
+	self.bridgeDelegate.inappBridge =[WebViewJavascriptBridge bridgeForWebView:(UIWebView*)self.webView];
+	[self.bridgeDelegate.inappBridge setWebViewDelegate:self.bridgeDelegate];
 	
 	NSString* url = [command argumentAtIndex:0];
 	NSString* target = [command argumentAtIndex:1 withDefault:kInAppBrowserTargetSelf];
@@ -1042,9 +1035,9 @@
 		self.bridgeDelegate = [BridgeDelegate new];
 		self.vcBridge = [WebViewJavascriptBridge bridgeForWebView:self.webView];
 		[self.vcBridge setWebViewDelegate:self.bridgeDelegate];
-		[self.vcBridge registerHandler:@"testJavascriptHandler" handler:^(id data, WVJBResponseCallback responseCallback)
+		[self.vcBridge registerHandler:@"message" handler:^(id data, WVJBResponseCallback responseCallback)
 		{
-			NSLog(@"testObjcCallback called: %@", data);
+			NSLog(@"message called: %@", data);
 			responseCallback(@"Response from testObjcCallback");
 		}];
 	}

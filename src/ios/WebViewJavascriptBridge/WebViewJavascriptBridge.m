@@ -159,32 +159,22 @@
     NSURL *url = [request URL];
 	NSLog(@"url: %@",url.absoluteString);
     __strong WVJB_WEBVIEW_DELEGATE_TYPE* strongDelegate = _webViewDelegate;
-	
-	if (![_base isCorrectProcotocolScheme:url])
-	{
-		[_base injectJavascriptFile];
-		return YES;
 
-	}
-	else
+	if ([_base isCorrectProcotocolScheme:url])
 	{
-		if ([_base isCorrectProcotocolScheme:url])
-		{
-			if ([_base isBridgeLoadedURL:url]) {
-				[_base injectJavascriptFile];
-			} else if ([_base isQueueMessageURL:url]) {
-				NSString *messageQueueString = [self _evaluateJavascript:[_base webViewJavascriptFetchQueyCommand]];
-				[_base flushMessageQueue:messageQueueString];
-			} else {
-				[_base logUnkownMessage:url];
-			}
-			return NO;
-		} else if (strongDelegate && [strongDelegate respondsToSelector:@selector(webView:shouldStartLoadWithRequest:navigationType:)]) {
-			return [strongDelegate webView:webView shouldStartLoadWithRequest:request navigationType:navigationType];
+		if ([_base isBridgeLoadedURL:url]) {
+			[_base injectJavascriptFile];
+		} else if ([_base isQueueMessageURL:url]) {
+			NSString *messageQueueString = [self _evaluateJavascript:[_base webViewJavascriptFetchQueyCommand]];
+			[_base flushMessageQueue:messageQueueString];
 		} else {
-			return YES;
+			[_base logUnkownMessage:url];
 		}
-
+		return NO;
+	} else if (strongDelegate && [strongDelegate respondsToSelector:@selector(webView:shouldStartLoadWithRequest:navigationType:)]) {
+		return [strongDelegate webView:webView shouldStartLoadWithRequest:request navigationType:navigationType];
+	} else {
+		return YES;
 	}
 }
 

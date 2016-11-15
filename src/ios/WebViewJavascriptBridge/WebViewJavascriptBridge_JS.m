@@ -22,7 +22,7 @@ NSString * WebViewJavascriptBridge_js() {
 
 	if (!window.onerror) {
 		window.onerror = function(msg, url, line) {
-			console.log("WebViewJavascriptBridge: ERROR:" + msg + "@" + url + ":" + line);
+			// console.log("WebViewJavascriptBridge: ERROR:" + msg + "@" + url + ":" + line);
 		}
 	}
 	window.WebViewJavascriptBridge = {
@@ -46,8 +46,8 @@ NSString * WebViewJavascriptBridge_js() {
 
 	function registerHandler(handlerName, handler) {
 		messageHandlers[handlerName] = handler;
-		console.log("Inside Injection")
-		console.log(handler)
+		// console.log("Inside Injection")
+		// console.log(handler)
 	}
 	
 	function callHandler(handlerName, data, responseCallback) {
@@ -106,7 +106,7 @@ NSString * WebViewJavascriptBridge_js() {
 				
 				var handler = messageHandlers[message.handlerName];
 				if (!handler) {
-					console.log("WebViewJavascriptBridge: WARNING: no handler for message from ObjC:", message);
+					// console.log("WebViewJavascriptBridge: WARNING: no handler for message from ObjC:", message);
 				} else {
 					handler(message.data, responseCallback);
 				}
