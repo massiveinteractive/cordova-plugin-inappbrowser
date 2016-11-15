@@ -125,7 +125,12 @@
 @property (nonatomic,strong) BridgeDelegate *bridgeDelegate;
 @property WebViewJavascriptBridge* vcBridge;
 
+@property (nonatomic, strong) NSString *callbackEvent;
+@property (nonatomic, strong) CDVInAppBrowser *callbackRef;
+
 -(void)testcallback;
+-(void)setEventCallback:(NSString *)value andReference:(CDVInAppBrowser*)reference;
+-(void)dispatchEvent:(NSString *)event withValue:(id)value;
 
 - (void)close;
 - (void)navigateTo:(NSURL*)url;

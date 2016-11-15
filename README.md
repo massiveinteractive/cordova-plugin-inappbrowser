@@ -220,7 +220,7 @@ The object returned from a call to `cordova.InAppBrowser.open` when the target i
   - __loadstop__: event fires when the `InAppBrowser` finishes loading a URL.
   - __loaderror__: event fires when the `InAppBrowser` encounters an error when loading a URL.
   - __exit__: event fires when the `InAppBrowser` window is closed.
-  - __message__: (Android Only) event fires when the `InAppBrowser` window receive data from Javascript Bridge
+  - __message__: (Android and iOS Only) event fires when the `InAppBrowser` window receive data from Javascript Bridge
 
 - __callback__: the function that executes when the event fires. The function is passed an `InAppBrowserEvent` object as a parameter.
 

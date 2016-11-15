@@ -175,7 +175,9 @@
 		self.inAppBrowserViewController = [[CDVInAppBrowserViewController alloc] initWithUserAgent:userAgent prevUserAgent:[self.commandDelegate userAgent] browserOptions: browserOptions];
 		self.inAppBrowserViewController.navigationDelegate = self;
 		
-		if ([self.viewController conformsToProtocol:@protocol(CDVScreenOrientationDelegate)]) 
+		[self.inAppBrowserViewController setEventCallback:self.callbackId andReference:self];
+
+		if ([self.viewController conformsToProtocol:@protocol(CDVScreenOrientationDelegate)])
 		{
 			self.inAppBrowserViewController.orientationDelegate = (UIViewController <CDVScreenOrientationDelegate>*)self.viewController;
 		}
@@ -563,6 +565,31 @@
 -(void)dealloc 
 {
 	self.webView.delegate = nil;
+}
+
+-(void)setEventCallback:(NSString *)value andReference:(CDVInAppBrowser*)reference
+{
+	self.callbackRef = reference;
+	self.callbackEvent = value;
+}
+
+-(void)dispatchEvent:(NSString *)event withValue:(id)value
+{
+	NSLog(@"dispatchEvent = %@", event);
+	NSLog(@"dispatchValue = %@", value);
+	NSMutableDictionary *message = [[NSMutableDictionary alloc] init];
+	[message setValue:event forKey:@"event"];
+	[message setObject:value forKey:@"value"];
+	
+	NSData *messageData = [NSJSONSerialization dataWithJSONObject:message
+														  options:0
+															error:nil];
+	NSString *json = [[NSString alloc]initWithData:messageData encoding:NSUTF8StringEncoding];
+	NSLog(@"json: %@",json);
+	CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
+													  messageAsString:json];
+	[pluginResult setKeepCallbackAsBool:YES];
+	[self.callbackRef.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackEvent];
 }
 
 - (void)createViews
@@ -1039,6 +1066,7 @@
 		[self.vcBridge registerHandler:@"message" handler:^(id data, WVJBResponseCallback responseCallback)
 		 {
 			 NSLog(@"message called: %@", data);
+			 [self dispatchEvent:@"message" withValue:data];
 			 responseCallback(@"Response from testObjcCallback");
 		 }];
 	}
