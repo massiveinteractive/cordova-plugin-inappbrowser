@@ -20,6 +20,8 @@
 #import <Cordova/CDVPlugin.h>
 #import <Cordova/CDVInvokedUrlCommand.h>
 #import <Cordova/CDVScreenOrientationDelegate.h>
+#import "WebViewJavascriptBridge.h"
+
 #define kDefaultToken @"NoHeaderToken"
 
 #ifdef __CORDOVA_4_0_0
@@ -27,6 +29,11 @@
 #else
 #import <Cordova/CDVWebViewDelegate.h>
 #endif
+
+@interface BridgeDelegate : NSObject<UIWebViewDelegate>
+@property WebViewJavascriptBridge* inappBridge;
+
+@end
 
 @class CDVInAppBrowserViewController;
 
@@ -36,11 +43,13 @@
 @property (nonatomic, retain) CDVInAppBrowserViewController* inAppBrowserViewController;
 @property (nonatomic, copy) NSString* callbackId;
 @property (nonatomic, copy) NSRegularExpression *callbackIdPattern;
+@property (nonatomic, copy) BridgeDelegate *bridgeDelegate;
 
 - (void)open:(CDVInvokedUrlCommand*)command;
 - (void)close:(CDVInvokedUrlCommand*)command;
 - (void)injectScriptCode:(CDVInvokedUrlCommand*)command;
 - (void)show:(CDVInvokedUrlCommand*)command;
+-(void)testcall:(CDVInvokedUrlCommand*)command;
 
 @end
 
@@ -113,6 +122,10 @@
 @property (nonatomic, weak) CDVInAppBrowser* navigationDelegate;
 @property (nonatomic) NSURL* currentURL;
 @property (nonatomic, strong) NSString *tokenString;
+@property (nonatomic,strong) BridgeDelegate *bridgeDelegate;
+@property WebViewJavascriptBridge* vcBridge;
+
+-(void)testcallback;
 
 - (void)close;
 - (void)navigateTo:(NSURL*)url;
