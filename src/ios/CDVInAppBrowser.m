@@ -88,9 +88,6 @@
 {
 	CDVPluginResult* pluginResult;
 	
-	self.bridgeDelegate.inappBridge =[WebViewJavascriptBridge bridgeForWebView:(UIWebView*)self.webView];
-	[self.bridgeDelegate.inappBridge setWebViewDelegate:self.bridgeDelegate];
-	
 	NSString* url = [command argumentAtIndex:0];
 	NSString* target = [command argumentAtIndex:1 withDefault:kInAppBrowserTargetSelf];
 	NSString* options = [command argumentAtIndex:2 withDefault:@"" andClass:[NSString class]];
@@ -1060,9 +1057,8 @@
 	if (!self.vcBridge)
 	{
 		[WebViewJavascriptBridge enableLogging];
-		self.bridgeDelegate = [BridgeDelegate new];
 		self.vcBridge = [WebViewJavascriptBridge bridgeForWebView:self.webView];
-		[self.vcBridge setWebViewDelegate:self.bridgeDelegate];
+		[self.vcBridge setWebViewDelegate:self];
 		[self.vcBridge registerHandler:@"message" handler:^(id data, WVJBResponseCallback responseCallback)
 		 {
 			 NSLog(@"message called: %@", data);
@@ -1371,31 +1367,6 @@
 + (UIColor *)colorWithHexValue:(uint)hexValue andAlpha:(float)alpha 
 {
 	return [UIColor colorWithRed:((float)((hexValue & 0xFF0000) >> 16))/255.0 green:((float)((hexValue & 0xFF00) >> 8))/255.0 blue:((float)(hexValue & 0xFF))/255.0 alpha:alpha];
-}
-
-@end
-
-@implementation BridgeDelegate
-
-- (void)webViewDidStartLoad:(UIWebView *)webView {
-	NSLog(@"webViewDidStartLoad");
-}
-
-- (void)webViewDidFinishLoad:(UIWebView *)webView {
-	NSLog(@"webViewDidFinishLoad");
-}
-
--(void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
-{
-	NSLog(@"webview error: %@",error);
-}
-
-- (BOOL)webView:(UIWebView*)theWebView shouldStartLoadWithRequest:(NSURLRequest*)request navigationType:(UIWebViewNavigationType)navigationType
-{
-	NSLog(@"webview request: %@",request);
-	
-	return YES;
-	
 }
 
 @end

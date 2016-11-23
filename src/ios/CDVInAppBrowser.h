@@ -30,11 +30,6 @@
 #import <Cordova/CDVWebViewDelegate.h>
 #endif
 
-@interface BridgeDelegate : NSObject<UIWebViewDelegate>
-@property WebViewJavascriptBridge* inappBridge;
-
-@end
-
 @class CDVInAppBrowserViewController;
 
 @interface CDVInAppBrowser : CDVPlugin {
@@ -43,7 +38,6 @@
 @property (nonatomic, retain) CDVInAppBrowserViewController* inAppBrowserViewController;
 @property (nonatomic, copy) NSString* callbackId;
 @property (nonatomic, copy) NSRegularExpression *callbackIdPattern;
-@property (nonatomic, copy) BridgeDelegate *bridgeDelegate;
 
 - (void)open:(CDVInvokedUrlCommand*)command;
 - (void)close:(CDVInvokedUrlCommand*)command;
@@ -122,7 +116,6 @@
 @property (nonatomic, weak) CDVInAppBrowser* navigationDelegate;
 @property (nonatomic) NSURL* currentURL;
 @property (nonatomic, strong) NSString *tokenString;
-@property (nonatomic,strong) BridgeDelegate *bridgeDelegate;
 @property WebViewJavascriptBridge* vcBridge;
 
 @property (nonatomic, strong) NSString *callbackEvent;
