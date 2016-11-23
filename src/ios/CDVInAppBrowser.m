@@ -1053,7 +1053,6 @@
 		[self.vcBridge setWebViewDelegate:self];
 		[self.vcBridge registerHandler:@"message" handler:^(id data, WVJBResponseCallback responseCallback)
 		 {
-			 NSLog(@"message called: %@", data);
 			 [self dispatchEvent:@"message" withValue:data];
 			 responseCallback(@"Response from testObjcCallback");
 		 }];
