@@ -58,11 +58,6 @@
 	[self close:nil];
 }
 
--(void)testcall:(CDVInvokedUrlCommand *)command
-{
-	[self.inAppBrowserViewController testcallback];
-}
-
 - (void)close:(CDVInvokedUrlCommand*)command
 {
 	if (self.inAppBrowserViewController == nil) 
@@ -572,8 +567,6 @@
 
 -(void)dispatchEvent:(NSString *)event withValue:(id)value
 {
-	NSLog(@"dispatchEvent = %@", event);
-	NSLog(@"dispatchValue = %@", value);
 	NSMutableDictionary *message = [[NSMutableDictionary alloc] init];
 	[message setValue:event forKey:@"event"];
 	[message setObject:value forKey:@"value"];
@@ -582,7 +575,6 @@
 														  options:0
 															error:nil];
 	NSString *json = [[NSString alloc]initWithData:messageData encoding:NSUTF8StringEncoding];
-	NSLog(@"json: %@",json);
 	CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
 													  messageAsString:json];
 	[pluginResult setKeepCallbackAsBool:YES];
@@ -1080,11 +1072,6 @@
 			[weakSelf.webView loadRequest:request];
 		}];
 	}
-}
-
--(void)testcallback
-{
-	[self.vcBridge callHandler:@"bridgeToJS" data:@{ @"foo":@"before ready" }];
 }
 
 - (void)goBack:(id)sender

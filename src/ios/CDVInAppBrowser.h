@@ -43,7 +43,6 @@
 - (void)close:(CDVInvokedUrlCommand*)command;
 - (void)injectScriptCode:(CDVInvokedUrlCommand*)command;
 - (void)show:(CDVInvokedUrlCommand*)command;
--(void)testcall:(CDVInvokedUrlCommand*)command;
 
 @end
 
@@ -121,7 +120,6 @@
 @property (nonatomic, strong) NSString *callbackEvent;
 @property (nonatomic, strong) CDVInAppBrowser *callbackRef;
 
--(void)testcallback;
 -(void)setEventCallback:(NSString *)value andReference:(CDVInAppBrowser*)reference;
 -(void)dispatchEvent:(NSString *)event withValue:(id)value;
 
