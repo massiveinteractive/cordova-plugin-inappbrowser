@@ -83,7 +83,8 @@
 {
 	CDVPluginResult* pluginResult;
 	
-	NSString* url = [command argumentAtIndex:0];
+	NSString* url = [[command argumentAtIndex:0]
+					 stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
 	NSString* target = [command argumentAtIndex:1 withDefault:kInAppBrowserTargetSelf];
 	NSString* options = [command argumentAtIndex:2 withDefault:@"" andClass:[NSString class]];
 
@@ -567,17 +568,10 @@
 
 -(void)dispatchEvent:(NSString *)event withValue:(id)value
 {
-	NSMutableDictionary *message = [[NSMutableDictionary alloc] init];
-	[message setValue:event forKey:@"event"];
-	[message setObject:value forKey:@"value"];
-	
-	NSData *messageData = [NSJSONSerialization dataWithJSONObject:message
-														  options:0
-															error:nil];
-	NSString *json = [[NSString alloc]initWithData:messageData encoding:NSUTF8StringEncoding];
 	CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
-													  messageAsString:json];
-	[pluginResult setKeepCallbackAsBool:YES];
+												  messageAsDictionary:@{@"type":@"message", @"data":value}];
+	[pluginResult setKeepCallback:[NSNumber numberWithBool:YES]];
+	
 	[self.callbackRef.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackEvent];
 }
 
