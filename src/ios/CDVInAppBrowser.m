@@ -721,7 +721,7 @@
 													   target:self
 													   action:@selector(close)];
 	self.closeButton.enabled = YES;
-	self.closeButton.tintColor = [UIColor blueColor];
+	self.closeButton.tintColor = [UIColor whiteColor];
 	
 	NSMutableArray* items = [self.toolbar.items mutableCopy];
 	[items replaceObjectAtIndex:0 withObject:self.closeButton];
