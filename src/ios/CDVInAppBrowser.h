@@ -38,6 +38,7 @@
 @property (nonatomic, retain) CDVInAppBrowserViewController* inAppBrowserViewController;
 @property (nonatomic, copy) NSString* callbackId;
 @property (nonatomic, copy) NSRegularExpression *callbackIdPattern;
+@property (nonatomic,strong) NSString *languageCode;
 
 - (void)open:(CDVInvokedUrlCommand*)command;
 - (void)close:(CDVInvokedUrlCommand*)command;
@@ -77,6 +78,7 @@
 @property (nonatomic, copy) NSString* toolbarcolor;
 //PATCH - Set statusbar light or dark
 @property (nonatomic, assign) BOOL statusbarstylelight;
+@property (nonatomic,strong) NSString *languageCode;
 
 + (CDVInAppBrowserOptions*)parseOptions:(NSString*)options;
 
@@ -114,7 +116,7 @@
 @property (nonatomic, weak) id <CDVScreenOrientationDelegate> orientationDelegate;
 @property (nonatomic, weak) CDVInAppBrowser* navigationDelegate;
 @property (nonatomic) NSURL* currentURL;
-@property (nonatomic, strong) NSString *tokenString;
+@property (nonatomic, strong) NSString *tokenString, *languageCode;
 @property WebViewJavascriptBridge* vcBridge;
 
 @property (nonatomic, strong) NSString *callbackEvent;

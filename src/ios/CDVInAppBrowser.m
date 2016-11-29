@@ -85,6 +85,7 @@
 	
 	NSString* url = [[command argumentAtIndex:0]
 					 stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+	[self selectLanguageCodeWith:url];
 	NSString* target = [command argumentAtIndex:1 withDefault:kInAppBrowserTargetSelf];
 	NSString* options = [command argumentAtIndex:2 withDefault:@"" andClass:[NSString class]];
 
@@ -121,6 +122,25 @@
 	
 	[pluginResult setKeepCallback:[NSNumber numberWithBool:YES]];
 	[self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+-(void)selectLanguageCodeWith:(NSString*)text
+{
+	if ([text containsString:@"hu-HU"])
+	{
+		//hungary
+		self.languageCode = @"hu-localizable";
+	}
+	else if ([text containsString:@"pl-PL"])
+	{
+		//poland
+		self.languageCode = @"pl-localizable";
+	}
+	else
+	{
+		//other
+		self.languageCode = @"en-localizable";
+	}
 }
 
 - (void)openInInAppBrowser:(NSURL*)url withOptions:(NSString*)options
@@ -166,6 +186,7 @@
 		}
 
 		self.inAppBrowserViewController = [[CDVInAppBrowserViewController alloc] initWithUserAgent:userAgent prevUserAgent:[self.commandDelegate userAgent] browserOptions: browserOptions];
+		[self.inAppBrowserViewController setLanguageCode:self.languageCode];
 		self.inAppBrowserViewController.navigationDelegate = self;
 		
 		[self.inAppBrowserViewController setEventCallback:self.callbackId andReference:self];
@@ -531,7 +552,7 @@
 
 @implementation CDVInAppBrowserViewController
 
-@synthesize currentURL,tokenString;
+@synthesize currentURL, tokenString, languageCode;
 
 - (id)initWithUserAgent:(NSString*)userAgent prevUserAgent:(NSString*)prevUserAgent browserOptions: (CDVInAppBrowserOptions*) browserOptions
 {
@@ -569,7 +590,8 @@
 -(void)dispatchEvent:(NSString *)event withValue:(id)value
 {
 	CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
-												  messageAsDictionary:@{@"type":@"message", @"data":value}];
+												  messageAsDictionary:@{@"type":@"message",
+																		@"data":value}];
 	[pluginResult setKeepCallback:[NSNumber numberWithBool:YES]];
 	
 	[self.callbackRef.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackEvent];
@@ -662,17 +684,17 @@
 	self.addressLabel.numberOfLines = 1;
 	self.addressLabel.opaque = NO;
 	self.addressLabel.shadowOffset = CGSizeMake(0.0, -1.0);
-	self.addressLabel.text = NSLocalizedString(@"Loading...", nil);
+	self.addressLabel.text = NSLocalizedStringFromTable(@"Loading...", self.languageCode, nil);
 	self.addressLabel.textAlignment = NSTextAlignmentLeft;
 	self.addressLabel.textColor = [UIColor colorWithWhite:1.0f alpha:1.0f];
 	self.addressLabel.userInteractionEnabled = NO;
 	
-	NSString* frontArrowString = NSLocalizedString(@"►", nil); // create arrow from Unicode char
+	NSString* frontArrowString = NSLocalizedStringFromTable(@"►", self.languageCode, nil); // create arrow from Unicode char
 	self.forwardButton = [[UIBarButtonItem alloc] initWithTitle:frontArrowString style:UIBarButtonItemStylePlain target:self action:@selector(goForward:)];
 	self.forwardButton.enabled = YES;
 	self.forwardButton.imageInsets = UIEdgeInsetsZero;
 	
-	NSString* backArrowString = NSLocalizedString(@"◄", nil); // create arrow from Unicode char
+	NSString* backArrowString = NSLocalizedStringFromTable(@"◄", self.languageCode, nil); // create arrow from Unicode char
 	self.backButton = [[UIBarButtonItem alloc] initWithTitle:backArrowString style:UIBarButtonItemStylePlain target:self action:@selector(goBack:)];
 	self.backButton.enabled = YES;
 	self.backButton.imageInsets = UIEdgeInsetsZero;
@@ -693,7 +715,11 @@
 	// the advantage of using UIBarButtonSystemItemDone is the system will localize it for you automatically
 	// but, if you want to set this yourself, knock yourself out (we can't set the title for a system Done button, so we have to create a new one)
 	self.closeButton = nil;
-	self.closeButton = [[UIBarButtonItem alloc] initWithTitle:title style:UIBarButtonItemStylePlain target:self action:@selector(close)];
+	NSString *locTitle = NSLocalizedStringFromTable(@"Close", self.languageCode, nil);
+	self.closeButton = [[UIBarButtonItem alloc] initWithTitle:locTitle
+														style:UIBarButtonItemStylePlain
+													   target:self
+													   action:@selector(close)];
 	self.closeButton.enabled = YES;
 	self.closeButton.tintColor = [UIColor blueColor];
 	
@@ -976,12 +1002,12 @@
 	return NO;
 }
 
-- (void)close
+-(void)confirmedClose
 {
 	[CDVUserAgentUtil releaseLock:&_userAgentLockToken];
 	self.currentURL = nil;
 	
-	if ((self.navigationDelegate != nil) && [self.navigationDelegate respondsToSelector:@selector(browserExit)]) 
+	if ((self.navigationDelegate != nil) && [self.navigationDelegate respondsToSelector:@selector(browserExit)])
 		[self.navigationDelegate browserExit];
 	
 	__weak UIViewController* weakSelf = self;
@@ -993,6 +1019,38 @@
 		else
 			[[weakSelf parentViewController] dismissViewControllerAnimated:YES completion:nil];
 	});
+}
+
+- (void)close
+{
+	NSString *alertTitle = NSLocalizedStringFromTable(@"Please Confirm", self.languageCode, nil) ;
+	NSString *alertMessage = NSLocalizedStringFromTable(@"Would you like to cancel this operation?",
+														self.languageCode,
+														nil);
+	NSString *okTitle = NSLocalizedStringFromTable(@"OK", self.languageCode, nil);
+	NSString *cancelTitle = NSLocalizedStringFromTable(@"Cancel", self.languageCode, nil);
+	UIAlertController *alertController = [UIAlertController
+										  alertControllerWithTitle: alertTitle
+										  message: alertMessage
+										  preferredStyle:UIAlertControllerStyleAlert];
+	UIAlertAction *okAction = [UIAlertAction
+							   actionWithTitle:okTitle
+							   style:UIAlertActionStyleDefault
+							   handler:^(UIAlertAction * _Nonnull action)
+							   {
+								   [self confirmedClose];
+							   }];
+	UIAlertAction *cancelAction = [UIAlertAction
+								   actionWithTitle:cancelTitle
+								   style:UIAlertActionStyleDefault
+								   handler:^(UIAlertAction * _Nonnull action)
+								   {
+									   [alertController removeFromParentViewController];
+								   }];
+	
+	[alertController addAction:okAction];
+	[alertController addAction:cancelAction];
+	[self presentViewController:alertController animated:NO completion:nil];
 }
 
 - (void)navigateTo:(NSURL*)url
@@ -1104,7 +1162,7 @@
 {
 	// loading url, start spinner, update back/forward
 	
-	self.addressLabel.text = NSLocalizedString(@"Loading...", nil);
+	self.addressLabel.text = NSLocalizedStringFromTable(@"Loading...", self.languageCode, nil);
 	self.backButton.enabled = theWebView.canGoBack;
 	self.forwardButton.enabled = theWebView.canGoForward;
 	
@@ -1159,7 +1217,7 @@
 	self.forwardButton.enabled = theWebView.canGoForward;
 	[self.spinner stopAnimating];
 	
-	self.addressLabel.text = NSLocalizedString(@"Load Error", nil);
+	self.addressLabel.text = NSLocalizedStringFromTable(@"Load Error", self.languageCode, nil);
 	
 	[self.navigationDelegate webView:theWebView didFailLoadWithError:error];
 }
@@ -1193,11 +1251,12 @@
 
 @implementation CDVInAppBrowserOptions
 
-- (id)init
+- (id)initWithOptions:(NSString*)optionStrings
 {
 	if (self = [super init]) 
 	{
 		// default values
+		[self selectLanguageCodeWith:optionStrings];
 		self.location = YES;
 		self.toolbar = YES;
 		self.closebuttoncaption = nil;
@@ -1213,6 +1272,8 @@
 		self.hidden = NO;
 		self.disallowoverscroll = NO;
 		
+		NSString *closeString = NSLocalizedStringFromTable(@"Close", self.languageCode, @"nil");
+		self.closebuttoncaption = closeString;
 		//PATCH new browser options
 		self.shownavigationbtns = YES;
 		//PATCH - Set statusbar light or dark
@@ -1222,15 +1283,33 @@
 	return self;
 }
 
+-(void)selectLanguageCodeWith:(NSString*)text
+{
+	if ([text containsString:@"hu-HU"])
+	{
+		//hungary
+		self.languageCode = @"hu-localizable";
+	}
+	else if ([text containsString:@"pl-PL"])
+	{
+		//poland
+		self.languageCode = @"pl-localizable";
+	}
+	else
+	{
+		//other
+		self.languageCode = @"en-localizable";
+	}
+}
+
 + (CDVInAppBrowserOptions*)parseOptions:(NSString*)options
 {
-	CDVInAppBrowserOptions* obj = [[CDVInAppBrowserOptions alloc] init];
+	CDVInAppBrowserOptions* obj = [[CDVInAppBrowserOptions alloc] initWithOptions:options];
 	NSNumberFormatter* numberFormatter = [[NSNumberFormatter alloc] init];
 	[numberFormatter setAllowsFloats:YES];
 
 	//Set the Default value of the objects
 	[obj setValue:@"top" forKey:@"toolbarposition"];
-	[obj setValue:@"Close" forKey:@"closebuttoncaption"];
 	[obj setValue:[NSNumber numberWithBool:NO] forKey:@"disallowoverscroll"];
 	[obj setValue:[NSNumber numberWithBool:NO] forKey:@"shownavigationbtns"];
 	[obj setValue:[numberFormatter numberFromString:@"0xFFFFFF"] forKey:@"closebuttoncolor"];
