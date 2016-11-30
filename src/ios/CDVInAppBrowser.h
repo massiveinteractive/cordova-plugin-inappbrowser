@@ -150,3 +150,9 @@
 + (UIColor *)colorWithHexValue:(uint)hexValue andAlpha:(float)alpha;
 
 @end
+
+@interface LocalizationHelper : NSObject
+
++ (NSString*)countryCodeFromURLString:(NSString*)urlString;
+
+@end

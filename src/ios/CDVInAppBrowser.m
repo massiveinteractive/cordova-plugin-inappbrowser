@@ -85,7 +85,7 @@
 	
 	NSString* url = [[command argumentAtIndex:0]
 					 stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-	[self selectLanguageCodeWith:url];
+	self.languageCode = [LocalizationHelper countryCodeFromURLString:url];
 	NSString* target = [command argumentAtIndex:1 withDefault:kInAppBrowserTargetSelf];
 	NSString* options = [command argumentAtIndex:2 withDefault:@"" andClass:[NSString class]];
 
@@ -122,25 +122,6 @@
 	
 	[pluginResult setKeepCallback:[NSNumber numberWithBool:YES]];
 	[self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-}
-
--(void)selectLanguageCodeWith:(NSString*)text
-{
-	if ([text containsString:@"hu-HU"])
-	{
-		//hungary
-		self.languageCode = @"hu-localizable";
-	}
-	else if ([text containsString:@"pl-PL"])
-	{
-		//poland
-		self.languageCode = @"pl-localizable";
-	}
-	else
-	{
-		//other
-		self.languageCode = @"en-localizable";
-	}
 }
 
 - (void)openInInAppBrowser:(NSURL*)url withOptions:(NSString*)options
@@ -636,7 +617,7 @@
 	self.spinner.userInteractionEnabled = NO;
 	[self.spinner stopAnimating];
 	
-	self.closeButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(close)];
+	self.closeButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(confirmedClose)];
 	self.closeButton.enabled = YES;
 	
 	UIBarButtonItem* fixedSpaceButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:nil action:nil];
@@ -719,7 +700,7 @@
 	self.closeButton = [[UIBarButtonItem alloc] initWithTitle:locTitle
 														style:UIBarButtonItemStylePlain
 													   target:self
-													   action:@selector(close)];
+													   action:@selector(confirmedClose)];
 	self.closeButton.enabled = YES;
 	self.closeButton.tintColor = [UIColor whiteColor];
 	
@@ -1004,25 +985,6 @@
 
 -(void)confirmedClose
 {
-	[CDVUserAgentUtil releaseLock:&_userAgentLockToken];
-	self.currentURL = nil;
-	
-	if ((self.navigationDelegate != nil) && [self.navigationDelegate respondsToSelector:@selector(browserExit)])
-		[self.navigationDelegate browserExit];
-	
-	__weak UIViewController* weakSelf = self;
-	
-	// Run later to avoid the "took a long time" log message.
-	dispatch_async(dispatch_get_main_queue(), ^{
-		if ([weakSelf respondsToSelector:@selector(presentingViewController)])
-			[[weakSelf presentingViewController] dismissViewControllerAnimated:YES completion:nil];
-		else
-			[[weakSelf parentViewController] dismissViewControllerAnimated:YES completion:nil];
-	});
-}
-
-- (void)close
-{
 	NSString *alertTitle = NSLocalizedStringFromTable(@"Please Confirm", self.languageCode, nil) ;
 	NSString *alertMessage = NSLocalizedStringFromTable(@"Would you like to cancel this operation?",
 														self.languageCode,
@@ -1038,7 +1000,7 @@
 							   style:UIAlertActionStyleDefault
 							   handler:^(UIAlertAction * _Nonnull action)
 							   {
-								   [self confirmedClose];
+								   [self close];
 							   }];
 	UIAlertAction *cancelAction = [UIAlertAction
 								   actionWithTitle:cancelTitle
@@ -1051,6 +1013,25 @@
 	[alertController addAction:okAction];
 	[alertController addAction:cancelAction];
 	[self presentViewController:alertController animated:NO completion:nil];
+}
+
+- (void)close
+{
+	[CDVUserAgentUtil releaseLock:&_userAgentLockToken];
+	self.currentURL = nil;
+	
+	if ((self.navigationDelegate != nil) && [self.navigationDelegate respondsToSelector:@selector(browserExit)])
+		[self.navigationDelegate browserExit];
+	
+	__weak UIViewController* weakSelf = self;
+	
+	// Run later to avoid the "took a long time" log message.
+	dispatch_async(dispatch_get_main_queue(), ^{
+		if ([weakSelf respondsToSelector:@selector(presentingViewController)])
+			[[weakSelf presentingViewController] dismissViewControllerAnimated:YES completion:nil];
+		else
+			[[weakSelf parentViewController] dismissViewControllerAnimated:YES completion:nil];
+	});
 }
 
 - (void)navigateTo:(NSURL*)url
@@ -1256,7 +1237,7 @@
 	if (self = [super init]) 
 	{
 		// default values
-		[self selectLanguageCodeWith:optionStrings];
+		self.languageCode = [LocalizationHelper countryCodeFromURLString:optionStrings];
 		self.location = YES;
 		self.toolbar = YES;
 		self.closebuttoncaption = nil;
@@ -1281,25 +1262,6 @@
 	}
 	
 	return self;
-}
-
--(void)selectLanguageCodeWith:(NSString*)text
-{
-	if ([text containsString:@"hu-HU"])
-	{
-		//hungary
-		self.languageCode = @"hu-localizable";
-	}
-	else if ([text containsString:@"pl-PL"])
-	{
-		//poland
-		self.languageCode = @"pl-localizable";
-	}
-	else
-	{
-		//other
-		self.languageCode = @"en-localizable";
-	}
 }
 
 + (CDVInAppBrowserOptions*)parseOptions:(NSString*)options
@@ -1426,6 +1388,32 @@
 + (UIColor *)colorWithHexValue:(uint)hexValue andAlpha:(float)alpha 
 {
 	return [UIColor colorWithRed:((float)((hexValue & 0xFF0000) >> 16))/255.0 green:((float)((hexValue & 0xFF00) >> 8))/255.0 blue:((float)(hexValue & 0xFF))/255.0 alpha:alpha];
+}
+
+@end
+
+@implementation LocalizationHelper
+
++(NSString*)countryCodeFromURLString:(NSString *)urlString
+{
+	NSString *toRet;
+	if ([urlString containsString:@"hu-HU"])
+	{
+		//hungary
+		toRet = @"hu-localizable";
+	}
+	else if ([urlString containsString:@"pl-PL"])
+	{
+		//poland
+		toRet = @"pl-localizable";
+	}
+	else
+	{
+		//other
+		toRet = @"en-localizable";
+	}
+	
+	return toRet;
 }
 
 @end
