@@ -1274,10 +1274,10 @@
 	[obj setValue:@"top" forKey:@"toolbarposition"];
 	[obj setValue:[NSNumber numberWithBool:NO] forKey:@"disallowoverscroll"];
 	[obj setValue:[NSNumber numberWithBool:NO] forKey:@"shownavigationbtns"];
-	[obj setValue:[numberFormatter numberFromString:@"0xFFFFFF"] forKey:@"closebuttoncolor"];
-	[obj setValue:[numberFormatter numberFromString:@"0xFF0000"] forKey:@"gradient1"];
-	[obj setValue:[numberFormatter numberFromString:@"0xFF0000"] forKey:@"gradient2"];
-	[obj setValue:[numberFormatter numberFromString:@"0xFF0000"] forKey:@"toolbarbgcolor"];
+	[obj setValue:[NSNumber numberWithInt:0xFFFFFF] forKey:@"closebuttoncolor"];
+	[obj setValue:[NSNumber numberWithInt:0xFF0000] forKey:@"gradient1"];
+	[obj setValue:[NSNumber numberWithInt:0xFF0000] forKey:@"gradient2"];
+	[obj setValue:[NSNumber numberWithInt:0xFF0000] forKey:@"toolbarbgcolor"];
 	[obj setValue:[numberFormatter numberFromString:@"1.0"] forKey:@"alphagradient1"];
 	[obj setValue:[numberFormatter numberFromString:@"1.0"] forKey:@"alphagradient2"];
 	
