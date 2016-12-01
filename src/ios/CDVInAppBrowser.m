@@ -1396,23 +1396,18 @@
 
 +(NSString*)countryCodeFromURLString:(NSString *)urlString
 {
-	NSString *toRet;
-	if ([urlString containsString:@"hu-HU"])
+	NSArray *code = @[@"hu-HU", @"pl-PL"];
+	NSArray *toCode = @[@"hu-localizable", @"pl-localizable"];
+	NSString *toRet = @"en-localizable";
+	for (int i = 0; i < [code count]; i++)
 	{
-		//hungary
-		toRet = @"hu-localizable";
+		NSString *codeString = [code objectAtIndex:i];
+		if ([urlString containsString: codeString])
+		{
+			toRet = [toCode objectAtIndex:i];
+			break;
+		}
 	}
-	else if ([urlString containsString:@"pl-PL"])
-	{
-		//poland
-		toRet = @"pl-localizable";
-	}
-	else
-	{
-		//other
-		toRet = @"en-localizable";
-	}
-	
 	return toRet;
 }
 
