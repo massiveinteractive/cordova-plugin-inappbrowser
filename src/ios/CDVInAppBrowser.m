@@ -187,43 +187,43 @@
 		[self.inAppBrowserViewController setCloseButtonTitle:browserOptions.closebuttoncaption];
 	
 	//PATCH set close button color
-	if (browserOptions.closebuttoncolor != nil)
+	if (browserOptions.closebuttoncolor != nil) 
 		[self.inAppBrowserViewController setCloseButtonColor:browserOptions.closebuttoncolor];
 	
 	// Set Presentation Style
 	UIModalPresentationStyle presentationStyle = UIModalPresentationFullScreen; // default
-	if (browserOptions.presentationstyle != nil)
+	if (browserOptions.presentationstyle != nil) 
 	{
-		if ([[browserOptions.presentationstyle lowercaseString] isEqualToString:@"pagesheet"])
+		if ([[browserOptions.presentationstyle lowercaseString] isEqualToString:@"pagesheet"]) 
 			presentationStyle = UIModalPresentationPageSheet;
-		else if ([[browserOptions.presentationstyle lowercaseString] isEqualToString:@"formsheet"])
+		else if ([[browserOptions.presentationstyle lowercaseString] isEqualToString:@"formsheet"]) 
 			presentationStyle = UIModalPresentationFormSheet;
 	}
 	self.inAppBrowserViewController.modalPresentationStyle = presentationStyle;
 	
 	// Set Transition Style
 	UIModalTransitionStyle transitionStyle = UIModalTransitionStyleCoverVertical; // default
-	if (browserOptions.transitionstyle != nil)
+	if (browserOptions.transitionstyle != nil) 
 	{
-		if ([[browserOptions.transitionstyle lowercaseString] isEqualToString:@"fliphorizontal"])
+		if ([[browserOptions.transitionstyle lowercaseString] isEqualToString:@"fliphorizontal"]) 
 			transitionStyle = UIModalTransitionStyleFlipHorizontal;
-		else if ([[browserOptions.transitionstyle lowercaseString] isEqualToString:@"crossdissolve"])
+		else if ([[browserOptions.transitionstyle lowercaseString] isEqualToString:@"crossdissolve"]) 
 			transitionStyle = UIModalTransitionStyleCrossDissolve;
 	}
 	self.inAppBrowserViewController.modalTransitionStyle = transitionStyle;
 	
 	// prevent webView from bouncing
-	if (browserOptions.disallowoverscroll)
+	if (browserOptions.disallowoverscroll) 
 	{
-		if ([self.inAppBrowserViewController.webView respondsToSelector:@selector(scrollView)])
+		if ([self.inAppBrowserViewController.webView respondsToSelector:@selector(scrollView)]) 
 		{
 			((UIScrollView*)[self.inAppBrowserViewController.webView scrollView]).bounces = NO;
 		}
-		else
+		else 
 		{
-			for (id subview in self.inAppBrowserViewController.webView.subviews)
+			for (id subview in self.inAppBrowserViewController.webView.subviews) 
 			{
-				if ([[subview class] isSubclassOfClass:[UIScrollView class]])
+				if ([[subview class] isSubclassOfClass:[UIScrollView class]]) 
 					((UIScrollView*)subview).bounces = NO;
 			}
 		}
@@ -233,7 +233,7 @@
 	self.inAppBrowserViewController.webView.scalesPageToFit = browserOptions.enableviewportscale;
 	self.inAppBrowserViewController.webView.mediaPlaybackRequiresUserAction = browserOptions.mediaplaybackrequiresuseraction;
 	self.inAppBrowserViewController.webView.allowsInlineMediaPlayback = browserOptions.allowinlinemediaplayback;
-	if (IsAtLeastiOSVersion(@"6.0"))
+	if (IsAtLeastiOSVersion(@"6.0")) 
 	{
 		self.inAppBrowserViewController.webView.keyboardDisplayRequiresUserAction = browserOptions.keyboarddisplayrequiresuseraction;
 		self.inAppBrowserViewController.webView.suppressesIncrementalRendering = browserOptions.suppressesincrementalrendering;
@@ -241,19 +241,19 @@
 	
 	[self.inAppBrowserViewController setTokenString:receivedHeaderToken];
 	[self.inAppBrowserViewController navigateTo:url];
-	if (!browserOptions.hidden)
+	if (!browserOptions.hidden) 
 		[self show:nil];
 }
 
 - (void)show:(CDVInvokedUrlCommand*)command
 {
-	if (self.inAppBrowserViewController == nil)
+	if (self.inAppBrowserViewController == nil) 
 	{
 		NSLog(@"Tried to show IAB after it was closed.");
 		return;
 	}
-	
-	if (_previousStatusBarStyle != -1)
+
+	if (_previousStatusBarStyle != -1) 
 	{
 		NSLog(@"Tried to show IAB while already shown");
 		return;
@@ -271,7 +271,7 @@
 	
 	// Run later to avoid the "took a long time" log message.
 	dispatch_async(dispatch_get_main_queue(), ^{
-		if (weakSelf.inAppBrowserViewController != nil)
+		if (weakSelf.inAppBrowserViewController != nil) 
 			[weakSelf.viewController presentViewController:nav animated:YES completion:nil];
 	});
 }
@@ -284,7 +284,7 @@
 	// the webview engine itself will filter for this according to <allow-navigation> policy
 	// in config.xml for cordova-ios-4.0
 	[self.webViewEngine loadRequest:request];
-#else
+#else 
 	if ([self.commandDelegate URLIsWhitelisted:url])
 		[self.webView loadRequest:request];
 	// this assumes the InAppBrowser can be excepted from the white-list
@@ -313,18 +313,18 @@
 	// Ensure an iframe bridge is created to communicate with the CDVInAppBrowserViewController
 	[self.inAppBrowserViewController.webView stringByEvaluatingJavaScriptFromString:@"(function(d){_cdvIframeBridge=d.getElementById('_cdvIframeBridge');if(!_cdvIframeBridge) {var e = _cdvIframeBridge = d.createElement('iframe');e.id='_cdvIframeBridge'; e.style.display='none';d.body.appendChild(e);}})(document)"];
 	
-	if (jsWrapper != nil)
+	if (jsWrapper != nil) 
 	{
 		NSData* jsonData = [NSJSONSerialization dataWithJSONObject:@[source] options:0 error:nil];
 		NSString* sourceArrayString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-		if (sourceArrayString)
+		if (sourceArrayString) 
 		{
 			NSString* sourceString = [sourceArrayString substringWithRange:NSMakeRange(1, [sourceArrayString length] - 2)];
 			NSString* jsToInject = [NSString stringWithFormat:jsWrapper, sourceString];
 			[self.inAppBrowserViewController.webView stringByEvaluatingJavaScriptFromString:jsToInject];
 		}
-	}
-	else
+	} 
+	else 
 	{
 		[self.inAppBrowserViewController.webView stringByEvaluatingJavaScriptFromString:source];
 	}
@@ -334,7 +334,7 @@
 {
 	NSString* jsWrapper = nil;
 	
-	if ((command.callbackId != nil) && ![command.callbackId isEqualToString:@"INVALID"])
+	if ((command.callbackId != nil) && ![command.callbackId isEqualToString:@"INVALID"]) 
 	{
 		jsWrapper = [NSString stringWithFormat:@"_cdvIframeBridge.src='gap-iab://%@/'+encodeURIComponent(JSON.stringify([eval(%%@)]));", command.callbackId];
 	}
@@ -345,11 +345,11 @@
 {
 	NSString* jsWrapper;
 	
-	if ((command.callbackId != nil) && ![command.callbackId isEqualToString:@"INVALID"])
+	if ((command.callbackId != nil) && ![command.callbackId isEqualToString:@"INVALID"]) 
 	{
 		jsWrapper = [NSString stringWithFormat:@"(function(d) { var c = d.createElement('script'); c.src = %%@; c.onload = function() { _cdvIframeBridge.src='gap-iab://%@'; }; d.body.appendChild(c); })(document)", command.callbackId];
-	}
-	else
+	} 
+	else 
 	{
 		jsWrapper = @"(function(d) { var c = d.createElement('script'); c.src = %@; d.body.appendChild(c); })(document)";
 	}
@@ -360,11 +360,11 @@
 {
 	NSString* jsWrapper;
 	
-	if ((command.callbackId != nil) && ![command.callbackId isEqualToString:@"INVALID"])
+	if ((command.callbackId != nil) && ![command.callbackId isEqualToString:@"INVALID"]) 
 	{
 		jsWrapper = [NSString stringWithFormat:@"(function(d) { var c = d.createElement('style'); c.innerHTML = %%@; c.onload = function() { _cdvIframeBridge.src='gap-iab://%@'; }; d.body.appendChild(c); })(document)", command.callbackId];
-	}
-	else
+	} 
+	else 
 	{
 		jsWrapper = @"(function(d) { var c = d.createElement('style'); c.innerHTML = %@; d.body.appendChild(c); })(document)";
 	}
@@ -378,8 +378,8 @@
 	if ((command.callbackId != nil) && ![command.callbackId isEqualToString:@"INVALID"])
 	{
 		jsWrapper = [NSString stringWithFormat:@"(function(d) { var c = d.createElement('link'); c.rel='stylesheet'; c.type='text/css'; c.href = %%@; c.onload = function() { _cdvIframeBridge.src='gap-iab://%@'; }; d.body.appendChild(c); })(document)", command.callbackId];
-	}
-	else
+	} 
+	else 
 	{
 		jsWrapper = @"(function(d) { var c = d.createElement('link'); c.rel='stylesheet', c.type='text/css'; c.href = %@; d.body.appendChild(c); })(document)";
 	}
@@ -390,7 +390,7 @@
 {
 	NSError *err = nil;
 	// Initialize on first use
-	if (self.callbackIdPattern == nil)
+	if (self.callbackIdPattern == nil) 
 	{
 		self.callbackIdPattern = [NSRegularExpression regularExpressionWithPattern:@"^InAppBrowser[0-9]{1,10}$" options:0 error:&err];
 		
