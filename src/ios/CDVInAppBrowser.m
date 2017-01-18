@@ -737,7 +737,7 @@
 	{
 		self.addressLabel.hidden = NO;
 		
-		if (toolbarVisible)
+		if (toolbarVisible) 
 		{
 			// toolBar at the bottom, leave as is
 			// put locationBar on top of the toolBar
