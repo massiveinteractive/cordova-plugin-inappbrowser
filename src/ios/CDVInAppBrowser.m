@@ -876,7 +876,7 @@
 	if (show == !(self.toolbar.hidden))
 		return;
 	
-	if (show)
+	if (show) 
 	{
 		self.toolbar.hidden = NO;
 		CGRect webViewBounds = self.view.bounds;
