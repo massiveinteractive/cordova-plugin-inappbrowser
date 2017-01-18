@@ -60,7 +60,7 @@
 
 - (void)close:(CDVInvokedUrlCommand*)command
 {
-	if (self.inAppBrowserViewController == nil)
+	if (self.inAppBrowserViewController == nil) 
 	{
 		NSLog(@"IAB.close() called but it was already closed.");
 		return;
@@ -71,13 +71,14 @@
 
 - (BOOL) isSystemUrl:(NSURL*)url
 {
-	if ([[url host] isEqualToString:@"itunes.apple.com"])
+	if ([[url host] isEqualToString:@"itunes.apple.com"]) 
 	{
 		return YES;
 	}
 	
 	return NO;
 }
+
 - (void)open:(CDVInvokedUrlCommand*)command
 {
 	CDVPluginResult* pluginResult;
@@ -92,28 +93,28 @@
 	
 	self.callbackId = command.callbackId;
 	
-	if (url != nil)
+	if (url != nil) 
 	{
-#ifdef __CORDOVA_4_0_0
+		#ifdef __CORDOVA_4_0_0
 		NSURL* baseUrl = [self.webViewEngine URL];
-#else
+		#else
 		NSURL* baseUrl = [self.webView.request URL];
-#endif
+		#endif
 		NSURL* absoluteUrl = [[NSURL URLWithString:url relativeToURL:baseUrl] absoluteURL];
 		
 		if ([self isSystemUrl:absoluteUrl])
 			target = kInAppBrowserTargetSystem;
 		
-		if ([target isEqualToString:kInAppBrowserTargetSelf])
+		if ([target isEqualToString:kInAppBrowserTargetSelf]) 
 			[self openInCordovaWebView:absoluteUrl withOptions:options];
-		else if ([target isEqualToString:kInAppBrowserTargetSystem])
+		else if ([target isEqualToString:kInAppBrowserTargetSystem]) 
 			[self openInSystem:absoluteUrl];
 		else  // _blank or anything else
 			[self openInInAppBrowser:absoluteUrl withOptions:options];
 		
 		pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-	}
-	else
+	} 
+	else 
 	{
 		pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"incorrect number of arguments"];
 	}
@@ -126,29 +127,29 @@
 {
 	CDVInAppBrowserOptions* browserOptions = [CDVInAppBrowserOptions parseOptions:options];
 	
-	if (browserOptions.clearcache)
+	if (browserOptions.clearcache) 
 	{
 		NSHTTPCookie *cookie;
 		NSHTTPCookieStorage *storage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
 		for (cookie in [storage cookies])
 		{
-			if (![cookie.domain isEqual: @".^filecookies^"])
+			if (![cookie.domain isEqual: @".^filecookies^"]) 
 				[storage deleteCookie:cookie];
 		}
 	}
 	
-	if (browserOptions.clearsessioncache)
+	if (browserOptions.clearsessioncache) 
 	{
 		NSHTTPCookie *cookie;
 		NSHTTPCookieStorage *storage = [NSHTTPCookieStorage sharedHTTPCookieStorage];
 		for (cookie in [storage cookies])
 		{
-			if (![cookie.domain isEqual: @".^filecookies^"] && cookie.isSessionOnly)
+			if (![cookie.domain isEqual: @".^filecookies^"] && cookie.isSessionOnly) 
 				[storage deleteCookie:cookie];
 		}
 	}
 	
-	if (self.inAppBrowserViewController == nil)
+	if (self.inAppBrowserViewController == nil) 
 	{
 		NSString* userAgent = [CDVUserAgentUtil originalUserAgent];
 		NSString* overrideUserAgent = [self settingForKey:@"OverrideUserAgent"];
@@ -158,12 +159,12 @@
 		{
 			userAgent = overrideUserAgent;
 		}
-		
+
 		if(appendUserAgent)
 		{
 			userAgent = [userAgent stringByAppendingString: appendUserAgent];
 		}
-		
+
 		self.inAppBrowserViewController = [[CDVInAppBrowserViewController alloc] initWithUserAgent:userAgent prevUserAgent:[self.commandDelegate userAgent] browserOptions: browserOptions];
 		self.inAppBrowserViewController.navigationDelegate = self;
 		
