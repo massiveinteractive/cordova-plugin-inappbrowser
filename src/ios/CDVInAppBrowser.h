@@ -38,7 +38,6 @@
 @property (nonatomic, retain) CDVInAppBrowserViewController* inAppBrowserViewController;
 @property (nonatomic, copy) NSString* callbackId;
 @property (nonatomic, copy) NSRegularExpression *callbackIdPattern;
-@property (nonatomic,strong) NSString *languageCode;
 
 - (void)open:(CDVInvokedUrlCommand*)command;
 - (void)close:(CDVInvokedUrlCommand*)command;
@@ -76,9 +75,10 @@
 @property (nonatomic, copy) NSString* alphagradient1;
 @property (nonatomic, copy) NSString* alphagradient2;
 @property (nonatomic, copy) NSString* toolbarcolor;
+@property (nonatomic, assign) BOOL hideallbuttons;
+
 //PATCH - Set statusbar light or dark
 @property (nonatomic, assign) BOOL statusbarstylelight;
-@property (nonatomic,strong) NSString *languageCode;
 
 + (CDVInAppBrowserOptions*)parseOptions:(NSString*)options;
 
@@ -86,19 +86,19 @@
 
 @interface CDVInAppBrowserViewController : UIViewController <UIWebViewDelegate, CDVScreenOrientationDelegate>{
 @private
-    NSString* _userAgent;
-    NSString* _prevUserAgent;
-    NSInteger _userAgentLockToken;
-    CDVInAppBrowserOptions *_browserOptions;
-    
-    UIView *statusBar;
-    CAGradientLayer *gradientStatus;
-    CAGradientLayer *gradientToolbar;
-    
+	NSString* _userAgent;
+	NSString* _prevUserAgent;
+	NSInteger _userAgentLockToken;
+	CDVInAppBrowserOptions *_browserOptions;
+	
+	UIView *statusBar;
+	CAGradientLayer *gradientStatus;
+	CAGradientLayer *gradientToolbar;
+	
 #ifdef __CORDOVA_4_0_0
-    CDVUIWebViewDelegate* _webViewDelegate;
+	CDVUIWebViewDelegate* _webViewDelegate;
 #else
-    CDVWebViewDelegate* _webViewDelegate;
+	CDVWebViewDelegate* _webViewDelegate;
 #endif
 }
 
@@ -116,7 +116,7 @@
 @property (nonatomic, weak) id <CDVScreenOrientationDelegate> orientationDelegate;
 @property (nonatomic, weak) CDVInAppBrowser* navigationDelegate;
 @property (nonatomic) NSURL* currentURL;
-@property (nonatomic, strong) NSString *tokenString, *languageCode;
+@property (nonatomic, strong) NSString *tokenString;
 @property WebViewJavascriptBridge* vcBridge;
 
 @property (nonatomic, strong) NSString *callbackEvent;
@@ -132,6 +132,7 @@
 - (void)showNavigationBtns:(BOOL)show; //PATCH - setting forward and back buttons
 - (void)setCloseButtonColor:(NSString*)color; //PATCH - setting forward and back buttons
 - (void)setCloseButtonTitle:(NSString*)title;
+- (void)hideAllBtn:(BOOL)shouldHideAllButtons;
 - (void)setToolbarFlatColor:(NSString*)color;
 - (void)setToolbarGradientColor:(NSString*)color1 : (NSString *) color2 : (NSString *) alpha1 : (NSString *) alpha2; //PATCH - setting gradient
 
@@ -148,11 +149,5 @@
 @interface UIColor(HexString)
 
 + (UIColor *)colorWithHexValue:(uint)hexValue andAlpha:(float)alpha;
-
-@end
-
-@interface LocalizationHelper : NSObject
-
-+ (NSString*)countryCodeFromURLString:(NSString*)urlString;
 
 @end

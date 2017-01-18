@@ -137,10 +137,6 @@
 		<source-file src="src/ios/WebViewJavascriptBridge/WebViewJavascriptBridge.m" />
 		<header-file src="src/ios/WebViewJavascriptBridge/WebViewJavascriptBridgeBase.h" />
 		<source-file src="src/ios/WebViewJavascriptBridge/WebViewJavascriptBridgeBase.m" />
-		
-		<resource-file src="src/ios/localised-strings/en-localizable.strings" />
-		<resource-file src="src/ios/localised-strings/hu-localizable.strings" />
-		<resource-file src="src/ios/localised-strings/pl-localizable.strings" />
 
 		<framework src="CoreGraphics.framework" />
     </platform>
