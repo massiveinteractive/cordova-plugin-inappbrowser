@@ -83,7 +83,7 @@ simply hook `window.open` during initialization.  For example:
 Opens a URL in a new `InAppBrowser` instance, the current browser
 instance, or the system browser.
 
-    var ref = cordova.InAppBrowser.open(url, target, options);
+    var ref = cordova.InAppBrowser.open(url, target, options, headerToken);
 
 - __ref__: Reference to the `InAppBrowser` window when the target is set to `'_blank'`. _(InAppBrowser)_
 
@@ -96,6 +96,12 @@ instance, or the system browser.
     - `_system`: Opens in the system's web browser.
 
 - __options__: Options for the `InAppBrowser`. Optional, defaulting to: `location=yes`. _(String)_
+
+- __headerToken__: Any header set of key and value to be added to the request header. Optional, defaulting to no added header argument. _(String)_ 
+
+The `headertoken` string could be any HTTP accepted header. However, we are using the following:
+
+    - __X-PASS-TOKEN__: set to the authentication token needed to add to the header, without any spaces. for example: "X-PASS-TOKEN=AnyGivenHeaderToken"
 
     The `options` string must not contain any blank space, and each feature's name/value pairs must be separated by a comma. Feature names are case insensitive. All platforms support the value below:
 
@@ -126,7 +132,8 @@ instance, or the system browser.
     - __presentationstyle__:  Set to `pagesheet`, `formsheet` or `fullscreen` to set the [presentation style](http://developer.apple.com/library/ios/documentation/UIKit/Reference/UIViewController_Class/Reference/Reference.html#//apple_ref/occ/instp/UIViewController/modalPresentationStyle) (defaults to `fullscreen`).
     - __transitionstyle__: Set to `fliphorizontal`, `crossdissolve` or `coververtical` to set the [transition style](http://developer.apple.com/library/ios/#documentation/UIKit/Reference/UIViewController_Class/Reference/Reference.html#//apple_ref/occ/instp/UIViewController/modalTransitionStyle) (defaults to `coververtical`).
     - __toolbarposition__: Set to `top` or `bottom` (default is `bottom`). Causes the toolbar to be at the top or bottom of the window.
-
+    - __hideallbuttons__: Set to 'yes' or 'no' (set to No by default). This will remove all buttons from the view (this only effects native buttons)
+    
     Windows only:
 
     - __hidden__: set to `yes` to create the browser and load the page, but not show it. The loadstop event fires when loading is complete. Omit or set to `no` (default) to have the browser open and load normally.
@@ -147,6 +154,7 @@ instance, or the system browser.
 
     var ref = cordova.InAppBrowser.open('http://apache.org', '_blank', 'location=yes');
     var ref2 = cordova.InAppBrowser.open(encodeURI('http://ja.m.wikipedia.org/wiki/ハングル'), '_blank', 'location=yes');
+    var ref = cordova.InAppBrowser.open('http://apache.org',  '_blank', 'location=yes,hideallbuttons=yes', 'X-PASS-TOKEN=AnyGivenHeaderToken')
 
 ### Firefox OS Quirks
 
@@ -220,7 +228,7 @@ The object returned from a call to `cordova.InAppBrowser.open` when the target i
   - __loadstop__: event fires when the `InAppBrowser` finishes loading a URL.
   - __loaderror__: event fires when the `InAppBrowser` encounters an error when loading a URL.
   - __exit__: event fires when the `InAppBrowser` window is closed.
-  - __message__: (Android Only) event fires when the `InAppBrowser` window receive data from Javascript Bridge
+  - __message__: (Android and iOS Only) event fires when the `InAppBrowser` window receive data from Javascript Bridge
 
 - __callback__: the function that executes when the event fires. The function is passed an `InAppBrowserEvent` object as a parameter.
 

@@ -20,6 +20,9 @@
 #import <Cordova/CDVPlugin.h>
 #import <Cordova/CDVInvokedUrlCommand.h>
 #import <Cordova/CDVScreenOrientationDelegate.h>
+#import "WebViewJavascriptBridge.h"
+
+#define kDefaultToken @"NoHeaderToken"
 
 #ifdef __CORDOVA_4_0_0
 #import <Cordova/CDVUIWebViewDelegate.h>
@@ -72,6 +75,8 @@
 @property (nonatomic, copy) NSString* alphagradient1;
 @property (nonatomic, copy) NSString* alphagradient2;
 @property (nonatomic, copy) NSString* toolbarcolor;
+@property (nonatomic, assign) BOOL hideallbuttons;
+
 //PATCH - Set statusbar light or dark
 @property (nonatomic, assign) BOOL statusbarstylelight;
 
@@ -111,6 +116,14 @@
 @property (nonatomic, weak) id <CDVScreenOrientationDelegate> orientationDelegate;
 @property (nonatomic, weak) CDVInAppBrowser* navigationDelegate;
 @property (nonatomic) NSURL* currentURL;
+@property (nonatomic, strong) NSString *tokenString;
+@property WebViewJavascriptBridge* vcBridge;
+
+@property (nonatomic, strong) NSString *callbackEvent;
+@property (nonatomic, strong) CDVInAppBrowser *callbackRef;
+
+-(void)setEventCallback:(NSString *)value andReference:(CDVInAppBrowser*)reference;
+-(void)dispatchEvent:(NSString *)event withValue:(id)value;
 
 - (void)close;
 - (void)navigateTo:(NSURL*)url;
@@ -119,6 +132,7 @@
 - (void)showNavigationBtns:(BOOL)show; //PATCH - setting forward and back buttons
 - (void)setCloseButtonColor:(NSString*)color; //PATCH - setting forward and back buttons
 - (void)setCloseButtonTitle:(NSString*)title;
+- (void)hideAllBtn:(BOOL)shouldHideAllButtons;
 - (void)setToolbarFlatColor:(NSString*)color;
 - (void)setToolbarGradientColor:(NSString*)color1 : (NSString *) color2 : (NSString *) alpha1 : (NSString *) alpha2; //PATCH - setting gradient
 

@@ -36,6 +36,7 @@
 
 @interface CDVInAppBrowser () {
 	NSInteger _previousStatusBarStyle;
+	NSString* receivedHeaderToken;
 }
 @end
 
@@ -82,10 +83,14 @@
 {
 	CDVPluginResult* pluginResult;
 	
-	NSString* url = [command argumentAtIndex:0];
+	NSString* url = [[command argumentAtIndex:0]
+					 stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
 	NSString* target = [command argumentAtIndex:1 withDefault:kInAppBrowserTargetSelf];
 	NSString* options = [command argumentAtIndex:2 withDefault:@"" andClass:[NSString class]];
-	
+
+	NSString *defaultTokenString = [command argumentAtIndex:3 withDefault:kDefaultToken];
+	receivedHeaderToken = [[NSString alloc]initWithString:defaultTokenString];
+
 	self.callbackId = command.callbackId;
 	
 	if (url != nil) 
@@ -163,7 +168,9 @@
 		self.inAppBrowserViewController = [[CDVInAppBrowserViewController alloc] initWithUserAgent:userAgent prevUserAgent:[self.commandDelegate userAgent] browserOptions: browserOptions];
 		self.inAppBrowserViewController.navigationDelegate = self;
 		
-		if ([self.viewController conformsToProtocol:@protocol(CDVScreenOrientationDelegate)]) 
+		[self.inAppBrowserViewController setEventCallback:self.callbackId andReference:self];
+
+		if ([self.viewController conformsToProtocol:@protocol(CDVScreenOrientationDelegate)])
 		{
 			self.inAppBrowserViewController.orientationDelegate = (UIViewController <CDVScreenOrientationDelegate>*)self.viewController;
 		}
@@ -172,6 +179,7 @@
 	[self.inAppBrowserViewController showLocationBar:browserOptions.location];
 	[self.inAppBrowserViewController showToolBar:browserOptions.toolbar :browserOptions.toolbarposition];
 	[self.inAppBrowserViewController showNavigationBtns:browserOptions.shownavigationbtns]; //PATCH - prev forward buttons
+	[self.inAppBrowserViewController hideAllBtn:browserOptions.hideallbuttons];
 	[self.inAppBrowserViewController setToolbarFlatColor:browserOptions.toolbarbgcolor]; //PATCH - toolbar flat background colour
 	[self.inAppBrowserViewController setToolbarGradientColor:browserOptions.gradient1 :browserOptions.gradient2 :browserOptions.alphagradient1 :browserOptions.alphagradient2]; //PATCH - set gradient color
 	
@@ -230,7 +238,8 @@
 		self.inAppBrowserViewController.webView.keyboardDisplayRequiresUserAction = browserOptions.keyboarddisplayrequiresuseraction;
 		self.inAppBrowserViewController.webView.suppressesIncrementalRendering = browserOptions.suppressesincrementalrendering;
 	}
-	
+
+	[self.inAppBrowserViewController setTokenString:receivedHeaderToken];
 	[self.inAppBrowserViewController navigateTo:url];
 	if (!browserOptions.hidden) 
 		[self show:nil];
@@ -523,7 +532,7 @@
 
 @implementation CDVInAppBrowserViewController
 
-@synthesize currentURL;
+@synthesize currentURL, tokenString;
 
 - (id)initWithUserAgent:(NSString*)userAgent prevUserAgent:(NSString*)prevUserAgent browserOptions: (CDVInAppBrowserOptions*) browserOptions
 {
@@ -550,6 +559,22 @@
 -(void)dealloc 
 {
 	self.webView.delegate = nil;
+}
+
+-(void)setEventCallback:(NSString *)value andReference:(CDVInAppBrowser*)reference
+{
+	self.callbackRef = reference;
+	self.callbackEvent = value;
+}
+
+-(void)dispatchEvent:(NSString *)event withValue:(id)value
+{
+	CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
+												  messageAsDictionary:@{@"type":@"message",
+																		@"data":value}];
+	[pluginResult setKeepCallback:[NSNumber numberWithBool:YES]];
+	
+	[self.callbackRef.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackEvent];
 }
 
 - (void)createViews
@@ -670,9 +695,9 @@
 	// the advantage of using UIBarButtonSystemItemDone is the system will localize it for you automatically
 	// but, if you want to set this yourself, knock yourself out (we can't set the title for a system Done button, so we have to create a new one)
 	self.closeButton = nil;
-	self.closeButton = [[UIBarButtonItem alloc] initWithTitle:title style:UIBarButtonItemStylePlain target:self action:@selector(close)];
+	self.closeButton = [[UIBarButtonItem alloc] initWithTitle:title style:UIBarButtonItemStylePlain target:self action:@selector(close)];		
 	self.closeButton.enabled = YES;
-	self.closeButton.tintColor = [UIColor blueColor];
+	self.closeButton.tintColor = [UIColor whiteColor];
 	
 	NSMutableArray* items = [self.toolbar.items mutableCopy];
 	[items replaceObjectAtIndex:0 withObject:self.closeButton];
@@ -827,6 +852,16 @@
 }
 //PATCH - Gradient Color END
 
+//PATCH - Show / hide close button START
+- (void)hideAllBtn:(BOOL)show
+{
+	if (!show)
+		[self.toolbar setItems:@[self.closeButton, self.flexibleSpaceButton, self.backButton, self.fixedSpaceButton, self.forwardButton]];
+	else
+		[self.toolbar setItems:nil];
+}
+//PATCH - Show / hide close button START
+
 - (void)showToolBar:(BOOL)show : (NSString *) toolbarPosition
 {
 	CGRect toolbarFrame = self.toolbar.frame;
@@ -958,7 +993,7 @@
 	[CDVUserAgentUtil releaseLock:&_userAgentLockToken];
 	self.currentURL = nil;
 	
-	if ((self.navigationDelegate != nil) && [self.navigationDelegate respondsToSelector:@selector(browserExit)]) 
+	if ((self.navigationDelegate != nil) && [self.navigationDelegate respondsToSelector:@selector(browserExit)])
 		[self.navigationDelegate browserExit];
 	
 	__weak UIViewController* weakSelf = self;
@@ -975,12 +1010,65 @@
 - (void)navigateTo:(NSURL*)url
 {
 	NSURLRequest* request = [NSURLRequest requestWithURL:url];
+	NSString *defaultString = kDefaultToken;
+	if (![self.tokenString isEqualToString:defaultString])
+	{
+		NSArray *array  = [self.tokenString componentsSeparatedByString:@"="];
+		NSMutableString *keyString = [[NSMutableString alloc]init];
+		NSMutableString *valueString = [[NSMutableString alloc]init];
+		if (array.count > 2)
+		{
+			[keyString setString:[array objectAtIndex:0]];
+			for (int i = 1; i < array.count; i++)
+			{
+				if (i != array.count - 1)
+				{
+					NSString *stringToRet = [[array objectAtIndex:i] stringByAppendingString:@"="];
+					[valueString appendString:stringToRet];
+				}
+				else
+				{
+					[valueString appendString:[array objectAtIndex:i]];
+				}
+			}
+		}
+		else if (array.count == 2)
+		{
+			[keyString setString:[array objectAtIndex:0]];
+			[valueString setString:array.lastObject];
+		}
+		
+		if (array.count < 2)
+		{
+			//Don't do anything, no token was passed for the link
+			//Or PAss on a message as error
+		}
+		else
+		{
+			NSMutableURLRequest *mutable_request = [request mutableCopy];
+			[mutable_request addValue:[valueString copy] forHTTPHeaderField:keyString];
+			request = [mutable_request copy];
+			NSLog(@"headers: %@",[request allHTTPHeaderFields]);
+		}
+	}
 	
-	if (_userAgentLockToken != 0) 
+	if (!self.vcBridge)
+	{
+		[WebViewJavascriptBridge enableLogging];
+		self.vcBridge = [WebViewJavascriptBridge bridgeForWebView:self.webView];
+		[self.vcBridge setWebViewDelegate:self];
+		[self.vcBridge registerHandler:@"message" handler:^(id data, WVJBResponseCallback responseCallback)
+		 {
+			 [self dispatchEvent:@"message" withValue:data];
+			 responseCallback(@"Response from testObjcCallback");
+		 }];
+	}
+
+	if (_userAgentLockToken != 0)
 	{
 		[self.webView loadRequest:request];
-	} 
-	else 
+	}
+	else
 	{
 		__weak CDVInAppBrowserViewController* weakSelf = self;
 		[CDVUserAgentUtil acquireLock:^(NSInteger lockToken) {
@@ -1139,16 +1227,38 @@
 		
 		//PATCH new browser options
 		self.shownavigationbtns = YES;
+		self.hideallbuttons = NO;
 		//PATCH - Set statusbar light or dark
 		self.statusbarstylelight = NO;
+
+		[self setDefaultValues];
 	}
 	
 	return self;
 }
 
+-(void)setDefaultValues
+{
+	NSNumberFormatter* numberFormatter = [[NSNumberFormatter alloc] init];
+	[numberFormatter setAllowsFloats:YES];
+	[self setValue:@"top" forKey:@"toolbarposition"];
+	[self setValue:[NSNumber numberWithBool:NO] forKey:@"disallowoverscroll"];
+	[self setValue:[NSNumber numberWithBool:NO] forKey:@"hideallbuttons"];
+	[self setValue:[NSNumber numberWithBool:NO] forKey:@"shownavigationbtns"];
+	[self setValue:[numberFormatter numberFromString:@"0xFFFFFF"] forKey:@"closebuttoncolor"];
+	[self setValue:[numberFormatter numberFromString:@"0xFF0000"] forKey:@"gradient1"];
+	[self setValue:[numberFormatter numberFromString:@"0xFF0000"] forKey:@"gradient2"];
+	[self setValue:[numberFormatter numberFromString:@"0xFF0000"] forKey:@"toolbarbgcolor"];
+	[self setValue:[numberFormatter numberFromString:@"1.0"] forKey:@"alphagradient1"];
+	[self setValue:[numberFormatter numberFromString:@"1.0"] forKey:@"alphagradient2"];
+}
+
 + (CDVInAppBrowserOptions*)parseOptions:(NSString*)options
 {
 	CDVInAppBrowserOptions* obj = [[CDVInAppBrowserOptions alloc] init];
+	NSNumberFormatter* numberFormatter = [[NSNumberFormatter alloc] init];
+	[numberFormatter setAllowsFloats:YES];
+
 	
 	// NOTE: this parsing does not handle quotes within values
 	NSArray* pairs = [options componentsSeparatedByString:@","];
@@ -1163,8 +1273,6 @@
 			NSString* value_lc = [value lowercaseString];
 			
 			BOOL isBoolean = [value_lc isEqualToString:@"yes"] || [value_lc isEqualToString:@"no"];
-			NSNumberFormatter* numberFormatter = [[NSNumberFormatter alloc] init];
-			[numberFormatter setAllowsFloats:YES];
 			BOOL isNumber = [numberFormatter numberFromString:value_lc] != nil;
 			
 			// set the property according to the key name
