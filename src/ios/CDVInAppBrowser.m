@@ -1019,10 +1019,10 @@
 		NSArray *array  = [self.tokenString componentsSeparatedByString:@"="];
 		NSMutableString *keyString = [[NSMutableString alloc]init];
 		NSMutableString *valueString = [[NSMutableString alloc]init];
-		if (array.count>2)
+		if (array.count > 2)
 		{
 			[keyString setString:[array objectAtIndex:0]];
-			for (int i = 1; i<array.count; i++)
+			for (int i = 1; i < array.count; i++)
 			{
 				if (i != array.count - 1)
 				{
@@ -1035,13 +1035,13 @@
 				}
 			}
 		}
-		else if (array.count==2)
+		else if (array.count == 2)
 		{
 			[keyString setString:[array objectAtIndex:0]];
 			[valueString setString:array.lastObject];
 		}
 		
-		if (array.count<2)
+		if (array.count < 2)
 		{
 			//Don't do anything, no token was passed for the link
 			//Or PAss on a message as error
