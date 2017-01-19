@@ -129,16 +129,16 @@
         </config-file>
 
         <header-file src="src/ios/CDVInAppBrowser.h" />
-	    <source-file src="src/ios/CDVInAppBrowser.m" />
+        <source-file src="src/ios/CDVInAppBrowser.m" />
 		
-		<header-file src="src/ios/WebViewJavascriptBridge/WebViewJavascriptBridge_JS.h" />
-		<source-file src="src/ios/WebViewJavascriptBridge/WebViewJavascriptBridge_JS.m" />
-		<header-file src="src/ios/WebViewJavascriptBridge/WebViewJavascriptBridge.h" />
-		<source-file src="src/ios/WebViewJavascriptBridge/WebViewJavascriptBridge.m" />
-		<header-file src="src/ios/WebViewJavascriptBridge/WebViewJavascriptBridgeBase.h" />
-		<source-file src="src/ios/WebViewJavascriptBridge/WebViewJavascriptBridgeBase.m" />
+        <header-file src="src/ios/WebViewJavascriptBridge/WebViewJavascriptBridge_JS.h" />
+        <source-file src="src/ios/WebViewJavascriptBridge/WebViewJavascriptBridge_JS.m" />
+        <header-file src="src/ios/WebViewJavascriptBridge/WebViewJavascriptBridge.h" />
+        <source-file src="src/ios/WebViewJavascriptBridge/WebViewJavascriptBridge.m" />
+        <header-file src="src/ios/WebViewJavascriptBridge/WebViewJavascriptBridgeBase.h" />
+        <source-file src="src/ios/WebViewJavascriptBridge/WebViewJavascriptBridgeBase.m" />
 
-		<framework src="CoreGraphics.framework" />
+        <framework src="CoreGraphics.framework" />
     </platform>
 
     <!-- wp7 -->
