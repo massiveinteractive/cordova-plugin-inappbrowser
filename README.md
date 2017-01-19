@@ -83,7 +83,7 @@ simply hook `window.open` during initialization.  For example:
 Opens a URL in a new `InAppBrowser` instance, the current browser
 instance, or the system browser.
 
-    var ref = cordova.InAppBrowser.open(url, target, options);
+    var ref = cordova.InAppBrowser.open(url, target, options, headerToken);
 
 - __ref__: Reference to the `InAppBrowser` window when the target is set to `'_blank'`. _(InAppBrowser)_
 
@@ -154,6 +154,7 @@ The `headertoken` string could be any HTTP accepted header. However, we are usin
 
     var ref = cordova.InAppBrowser.open('http://apache.org', '_blank', 'location=yes');
     var ref2 = cordova.InAppBrowser.open(encodeURI('http://ja.m.wikipedia.org/wiki/ハングル'), '_blank', 'location=yes');
+    var ref = cordova.InAppBrowser.open('http://apache.org',  '_blank', 'location=yes,hideallbuttons=yes', 'X-PASS-TOKEN=AnyGivenHeaderToken')
 
 ### Firefox OS Quirks
 
