@@ -695,10 +695,7 @@
 	// the advantage of using UIBarButtonSystemItemDone is the system will localize it for you automatically
 	// but, if you want to set this yourself, knock yourself out (we can't set the title for a system Done button, so we have to create a new one)
 	self.closeButton = nil;
-	self.closeButton = [[UIBarButtonItem alloc] initWithTitle:@"Close"
-														style:UIBarButtonItemStylePlain
-													   target:self
-													   action:@selector(close)];
+	self.closeButton = [[UIBarButtonItem alloc] initWithTitle:title style:UIBarButtonItemStylePlain target:self action:@selector(close)];		
 	self.closeButton.enabled = YES;
 	self.closeButton.tintColor = [UIColor whiteColor];
 	
@@ -1208,7 +1205,7 @@
 
 @implementation CDVInAppBrowserOptions
 
-- (id)initWithOptions:(NSString*)optionStrings
+- (id)init
 {
 	if (self = [super init]) 
 	{
@@ -1228,35 +1225,40 @@
 		self.hidden = NO;
 		self.disallowoverscroll = NO;
 		
-		NSString *closeString = @"Close";
-		self.closebuttoncaption = closeString;
 		//PATCH new browser options
 		self.shownavigationbtns = YES;
 		self.hideallbuttons = NO;
 		//PATCH - Set statusbar light or dark
 		self.statusbarstylelight = NO;
+
+		[self setDefaultValues];
 	}
 	
 	return self;
 }
 
+-(void)setDefaultValues
+{
+	NSNumberFormatter* numberFormatter = [[NSNumberFormatter alloc] init];
+	[numberFormatter setAllowsFloats:YES];
+	[self setValue:@"top" forKey:@"toolbarposition"];
+	[self setValue:[NSNumber numberWithBool:NO] forKey:@"disallowoverscroll"];
+	[self setValue:[NSNumber numberWithBool:NO] forKey:@"hideallbuttons"];
+	[self setValue:[NSNumber numberWithBool:NO] forKey:@"shownavigationbtns"];
+	[self setValue:[numberFormatter numberFromString:@"0xFFFFFF"] forKey:@"closebuttoncolor"];
+	[self setValue:[numberFormatter numberFromString:@"0xFF0000"] forKey:@"gradient1"];
+	[self setValue:[numberFormatter numberFromString:@"0xFF0000"] forKey:@"gradient2"];
+	[self setValue:[numberFormatter numberFromString:@"0xFF0000"] forKey:@"toolbarbgcolor"];
+	[self setValue:[numberFormatter numberFromString:@"1.0"] forKey:@"alphagradient1"];
+	[self setValue:[numberFormatter numberFromString:@"1.0"] forKey:@"alphagradient2"];
+}
+
 + (CDVInAppBrowserOptions*)parseOptions:(NSString*)options
 {
-	CDVInAppBrowserOptions* obj = [[CDVInAppBrowserOptions alloc] initWithOptions:options];
+	CDVInAppBrowserOptions* obj = [[CDVInAppBrowserOptions alloc] init];
 	NSNumberFormatter* numberFormatter = [[NSNumberFormatter alloc] init];
 	[numberFormatter setAllowsFloats:YES];
 
-	//Set the Default value of the objects
-	[obj setValue:@"top" forKey:@"toolbarposition"];
-	[obj setValue:[NSNumber numberWithBool:NO] forKey:@"disallowoverscroll"];
-	[obj setValue:[NSNumber numberWithBool:NO] forKey:@"hideallbuttons"];
-	[obj setValue:[NSNumber numberWithBool:NO] forKey:@"shownavigationbtns"];
-	[obj setValue:[numberFormatter numberFromString:@"0xFFFFFF"] forKey:@"closebuttoncolor"];
-	[obj setValue:[numberFormatter numberFromString:@"0xFF0000"] forKey:@"gradient1"];
-	[obj setValue:[numberFormatter numberFromString:@"0xFF0000"] forKey:@"gradient2"];
-	[obj setValue:[numberFormatter numberFromString:@"0xFF0000"] forKey:@"toolbarbgcolor"];
-	[obj setValue:[numberFormatter numberFromString:@"1.0"] forKey:@"alphagradient1"];
-	[obj setValue:[numberFormatter numberFromString:@"1.0"] forKey:@"alphagradient2"];
 	
 	// NOTE: this parsing does not handle quotes within values
 	NSArray* pairs = [options componentsSeparatedByString:@","];

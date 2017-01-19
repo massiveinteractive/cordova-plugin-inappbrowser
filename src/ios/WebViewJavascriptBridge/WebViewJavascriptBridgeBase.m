@@ -120,39 +120,9 @@ static int logMaxLength = 500;
         }
     }
 }
-//
-//-(BOOL)isCorrectProcotocolScheme:(NSURL*)url {
-//	NSString *sch =[url scheme];
-////TODO: Remove this after working it out or change it accordingly
-//	return YES;
-//    if([sch isEqualToString:kCustomProtocolScheme]){
-//        return YES;
-//    } else {
-//        return NO;
-//    }
-//}
-//
-//-(BOOL)isQueueMessageURL:(NSURL*)url {
-//    if([[url host] isEqualToString:kQueueHasMessage]){
-//        return YES;
-//    } else {
-//        return NO;
-//    }
-//}
-//
-//-(BOOL)isBridgeLoadedURL:(NSURL*)url {
-//	NSString *sch = [url scheme];
-//	NSString *host = [url host];
-//	//TODO: Remove this after working it out or change it accordingly
-//	return YES;
-//    return ([sch isEqualToString:kCustomProtocolScheme] && [host isEqualToString:kBridgeLoaded]);
-//}
-//
 
 -(BOOL)isCorrectProcotocolScheme:(NSURL*)url {
 	NSString *sch =[url scheme];
-	//TODO: Remove this after working it out or change it accordingly
-//	return YES;
 	if([sch isEqualToString:kCustomProtocolScheme]){
 		return YES;
 	} else {
@@ -171,8 +141,6 @@ static int logMaxLength = 500;
 -(BOOL)isBridgeLoadedURL:(NSURL*)url {
 	NSString *sch = [url scheme];
 	NSString *host = [url host];
-	//TODO: Remove this after working it out or change it accordingly
-//	return YES;
 	return ([sch isEqualToString:kCustomProtocolScheme] && [host isEqualToString:kBridgeLoaded]);
 }
 
