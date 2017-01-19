@@ -996,7 +996,7 @@
 	[CDVUserAgentUtil releaseLock:&_userAgentLockToken];
 	self.currentURL = nil;
 	
-	if ((self.navigationDelegate != nil) && [self.navigationDelegate respondsToSelector:@selector(browserExit)]) 
+	if ((self.navigationDelegate != nil) && [self.navigationDelegate respondsToSelector:@selector(browserExit)])
 		[self.navigationDelegate browserExit];
 	
 	__weak UIViewController* weakSelf = self;
@@ -1066,7 +1066,7 @@
 			 responseCallback(@"Response from testObjcCallback");
 		 }];
 	}
-	
+    
 	if (_userAgentLockToken != 0)
 	{
 		[self.webView loadRequest:request];
