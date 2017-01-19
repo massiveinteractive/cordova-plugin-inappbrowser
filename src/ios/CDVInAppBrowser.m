@@ -87,10 +87,10 @@
 					 stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
 	NSString* target = [command argumentAtIndex:1 withDefault:kInAppBrowserTargetSelf];
 	NSString* options = [command argumentAtIndex:2 withDefault:@"" andClass:[NSString class]];
-	
+
 	NSString *defaultTokenString = [command argumentAtIndex:3 withDefault:kDefaultToken];
 	receivedHeaderToken = [[NSString alloc]initWithString:defaultTokenString];
-	
+
 	self.callbackId = command.callbackId;
 	
 	if (url != nil) 
@@ -169,7 +169,7 @@
 		self.inAppBrowserViewController.navigationDelegate = self;
 		
 		[self.inAppBrowserViewController setEventCallback:self.callbackId andReference:self];
-		
+
 		if ([self.viewController conformsToProtocol:@protocol(CDVScreenOrientationDelegate)])
 		{
 			self.inAppBrowserViewController.orientationDelegate = (UIViewController <CDVScreenOrientationDelegate>*)self.viewController;
@@ -238,7 +238,7 @@
 		self.inAppBrowserViewController.webView.keyboardDisplayRequiresUserAction = browserOptions.keyboarddisplayrequiresuseraction;
 		self.inAppBrowserViewController.webView.suppressesIncrementalRendering = browserOptions.suppressesincrementalrendering;
 	}
-	
+
 	[self.inAppBrowserViewController setTokenString:receivedHeaderToken];
 	[self.inAppBrowserViewController navigateTo:url];
 	if (!browserOptions.hidden) 
@@ -1070,8 +1070,8 @@
 	if (_userAgentLockToken != 0)
 	{
 		[self.webView loadRequest:request];
-	} 
-	else 
+	}
+	else
 	{
 		__weak CDVInAppBrowserViewController* weakSelf = self;
 		[CDVUserAgentUtil acquireLock:^(NSInteger lockToken) {
@@ -1245,7 +1245,7 @@
 	CDVInAppBrowserOptions* obj = [[CDVInAppBrowserOptions alloc] initWithOptions:options];
 	NSNumberFormatter* numberFormatter = [[NSNumberFormatter alloc] init];
 	[numberFormatter setAllowsFloats:YES];
-	
+
 	//Set the Default value of the objects
 	[obj setValue:@"top" forKey:@"toolbarposition"];
 	[obj setValue:[NSNumber numberWithBool:NO] forKey:@"disallowoverscroll"];

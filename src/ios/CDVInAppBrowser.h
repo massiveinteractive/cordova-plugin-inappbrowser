@@ -90,6 +90,7 @@
     NSString* _prevUserAgent;
     NSInteger _userAgentLockToken;
     CDVInAppBrowserOptions *_browserOptions;
+
     UIView *statusBar;
     CAGradientLayer *gradientStatus;
     CAGradientLayer *gradientToolbar;
