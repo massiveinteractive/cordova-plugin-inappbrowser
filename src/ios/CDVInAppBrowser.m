@@ -28,7 +28,9 @@
 #define    kInAppBrowserToolbarBarPositionBottom @"bottom"
 #define    kInAppBrowserToolbarBarPositionTop @"top"
 
+#define    TOOLBAR_HEIGHT 44.0		
 #define    LOCATIONBAR_HEIGHT 21.0
+#define    FOOTER_HEIGHT ((TOOLBAR_HEIGHT) + (LOCATIONBAR_HEIGHT))		
 
 #pragma mark CDVInAppBrowser
 
@@ -1242,9 +1244,8 @@
 	NSNumberFormatter* numberFormatter = [[NSNumberFormatter alloc] init];
 	[numberFormatter setAllowsFloats:YES];
 	[self setValue:[NSNumber numberWithBool:NO] forKey:@"statusbarstylelight"];
-	[self setValue:[NSNumber numberWithInteger:44] forKey:@"toolbarheight"];
-	NSNumber *footNumber = [self valueForKey:@"toolbarheight"];
-	NSInteger footerCalculated = [footNumber integerValue] + LOCATIONBAR_HEIGHT;
+	[self setValue:[NSNumber numberWithInteger:TOOLBAR_HEIGHT] forKey:@"toolbarheight"];
+	NSInteger footerCalculated = TOOLBAR_HEIGHT + LOCATIONBAR_HEIGHT;
 	[self setValue:[NSNumber numberWithInteger:footerCalculated] forKey:@"toolbarFooterHeight"];
 	[self setValue:@"top" forKey:@"toolbarposition"];
 	[self setValue:[NSNumber numberWithBool:NO] forKey:@"disallowoverscroll"];
@@ -1295,7 +1296,7 @@
 
 	if ([[obj valueForKey:@"hideallbuttons"]boolValue])
 	{
-		[obj setValue:[NSNumber numberWithInteger:0] forKey:@"toolbarheight"];
+		[obj setValue:[NSNumber numberWithInteger:TOOLBAR_HEIGHT] forKey:@"toolbarheight"];
 	}
 	NSNumber *footNumber = [obj valueForKey:@"toolbarheight"];
 	NSInteger footerCalculated = [footNumber integerValue] + LOCATIONBAR_HEIGHT;
