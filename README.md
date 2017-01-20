@@ -133,6 +133,8 @@ The `headertoken` string could be any HTTP accepted header. However, we are usin
     - __transitionstyle__: Set to `fliphorizontal`, `crossdissolve` or `coververtical` to set the [transition style](http://developer.apple.com/library/ios/#documentation/UIKit/Reference/UIViewController_Class/Reference/Reference.html#//apple_ref/occ/instp/UIViewController/modalTransitionStyle) (defaults to `coververtical`).
     - __toolbarposition__: Set to `top` or `bottom` (default is `bottom`). Causes the toolbar to be at the top or bottom of the window.
     - __hideallbuttons__: Set to 'yes' or 'no' (set to No by default). This will remove all buttons from the view (this only effects native buttons)
+    - __toolbarheight__: This will change the height of toolbar. NOTE: This normally does not need to be set. If the 'hideallbuttons' is set, this will change automatically. Changing it manually can cause unwanted behaviour. (defaults to 44)
+    - __toolbarFooterHeight__: This will change the overall height of the footer. NOTE: This normally does not need to be set. If the 'hideallbuttons' is set, this will change automatically. Changing it manually can cause unwanted behaviour. (defaults to 65 -that is, 44 toolbarheigh and 21 locationbarheight)
     
     Windows only:
 
