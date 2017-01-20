@@ -857,6 +857,8 @@
 		[self.toolbar setItems:@[self.closeButton, self.flexibleSpaceButton, self.backButton, self.fixedSpaceButton, self.forwardButton]];
 	else
 		[self.toolbar setItems:nil];
+		[self setWebViewFrame:self.view.frame];
+		[self.toolbar removeFromSuperview];
 }
 //PATCH - Show / hide close button START
 
