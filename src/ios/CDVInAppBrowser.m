@@ -1296,7 +1296,7 @@
 
 	if ([[obj valueForKey:@"hideallbuttons"]boolValue])
 	{
-		[obj setValue:[NSNumber numberWithInteger:TOOLBAR_HEIGHT] forKey:@"toolbarheight"];
+		[obj setValue:[NSNumber numberWithInteger:0] forKey:@"toolbarheight"];
 	}
 	NSNumber *footNumber = [obj valueForKey:@"toolbarheight"];
 	NSInteger footerCalculated = [footNumber integerValue] + LOCATIONBAR_HEIGHT;
