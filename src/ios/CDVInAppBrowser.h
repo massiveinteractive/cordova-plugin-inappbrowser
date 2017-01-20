@@ -77,7 +77,7 @@
 @property (nonatomic, copy) NSString* toolbarcolor;
 @property (nonatomic, assign) BOOL hideallbuttons;
 @property (nonatomic) CGFloat toolbarheight;
-@property (nonatomic) CGFloat toolbarFooterHeight;
+@property (nonatomic) CGFloat toolbarfooterheight;
 
 //PATCH - Set statusbar light or dark
 @property (nonatomic, assign) BOOL statusbarstylelight;
