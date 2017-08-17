@@ -77,6 +77,7 @@ public class InAppBrowser extends CordovaPlugin {
     private static final String SELF = "_self";
     private static final String SYSTEM = "_system";
     private static final String EXIT_EVENT = "exit";
+    private static final String CLOSE_BUTTON = "closebutton";
     private static final String LOCATION = "location";
     private static final String ZOOM = "zoom";
     private static final String HIDDEN = "hidden";
@@ -92,6 +93,7 @@ public class InAppBrowser extends CordovaPlugin {
     private WebView inAppWebView;
     private EditText edittext;
     private CallbackContext callbackContext;
+    private boolean showCloseButton = false;
     private boolean showLocationBar = true;
     private boolean showZoomControls = true;
     private boolean openWindowHidden = false;
@@ -457,6 +459,14 @@ public class InAppBrowser extends CordovaPlugin {
         this.inAppWebView.requestFocus();
     }
 
+    /**
+     * Should we show the close button?
+     *
+     * @return boolean
+     */
+    private boolean getShowCloseButton() {
+        return this.showCloseButton;
+    }
 
     /**
      * Should we show the location bar?
@@ -478,6 +488,8 @@ public class InAppBrowser extends CordovaPlugin {
      * @param features jsonObject
      */
     public String showWebPage(final String url, HashMap<String, Boolean> features) {
+        // Determine if we should show the close button.
+        showCloseButton = false;
         // Determine if we should hide the location bar.
         showLocationBar = true;
         showZoomControls = true;
@@ -485,6 +497,10 @@ public class InAppBrowser extends CordovaPlugin {
         mediaPlaybackRequiresUserGesture = false;
 
         if (features != null) {
+            Boolean close = features.get(CLOSE_BUTTON);
+            if (close != null) {
+                showCloseButton = close.booleanValue();
+            }
             Boolean show = features.get(LOCATION);
             if (show != null) {
                 showLocationBar = show.booleanValue();
@@ -722,14 +738,24 @@ public class InAppBrowser extends CordovaPlugin {
                 actionButtonContainer.addView(back);
                 actionButtonContainer.addView(forward);
 
-                // Add the views to our toolbar
-                toolbar.addView(actionButtonContainer);
-                toolbar.addView(edittext);
-                toolbar.addView(close);
-
-                // Don't add the toolbar if its been disabled
+                // Don't add the extra buttons if location been disabled
                 if (getShowLocationBar()) {
-                    // Add our toolbar to our main view/layout
+                    // Add the rest of the buttons to our toolbar
+                    toolbar.addView(actionButtonContainer);
+                    toolbar.addView(edittext);
+                    toolbar.addView(close);
+                } else if (getShowCloseButton()) {
+                    // Move close button to left if the other buttons are hidden
+                    RelativeLayout.LayoutParams newLayoutParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+                    closeLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+                    closeLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+                    close.setLayoutParams(newLayoutParams);
+
+                    toolbar.addView(close);
+                }
+
+                // Don't add our toolbar to our main view/layout if it's empty
+                if (toolbar.getChildCount() > 0) {
                     main.addView(toolbar);
                 }
 
