@@ -743,7 +743,7 @@ public class InAppBrowser extends CordovaPlugin {
                     // Add the rest of the buttons to our toolbar
                     toolbar.addView(actionButtonContainer);
                     toolbar.addView(edittext);
-					toolbar.addView(close);
+                    toolbar.addView(close);
                 } else if (getShowCloseButton()) {
                     // Move close button to left if the other buttons are hidden
                     RelativeLayout.LayoutParams newLayoutParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
